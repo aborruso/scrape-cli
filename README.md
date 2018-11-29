@@ -18,7 +18,7 @@ curl -L 'http://en.wikipedia.org/wiki/List_of_sovereign_states' -s \
 | scrape -be '//table[contains(@class, 'wikitable')]/tbody/tr/td/b/a'
 ```
 
-`-e` to set the query and `-b` to add `<html>` and `<body>` tags to the HTML output.
+`-e` to set the query and `-b` to add `<html>`, `<head>` and `<body>` tags to the HTML output.
 
 It gives you back: 
 
