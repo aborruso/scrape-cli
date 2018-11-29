@@ -1,15 +1,24 @@
 # scrape cli
 
-It's the command-line version of the [great scraping tool](https://github.com/jeroenjanssens/data-science-at-the-command-line/blob/master/tools/scrape) written by [Jeroen Janssens](http://jeroenjanssens.com).
+It's the Linux command-line version (built using [pyinstaller](http://www.pyinstaller.org/)) of a [great scraping tool](https://github.com/jeroenjanssens/data-science-at-the-command-line/blob/master/tools/scrape) written by [Jeroen Janssens](http://jeroenjanssens.com). 
 
-It extracts HTML elements using an XPath query or CSS3 selector.
+It extracts HTML elements using XPath or CSS3 selector queries.
 
-Example usage:
+Example usage using CSS selector query:
 
-```
+```bash
 $ curl -L 'http://en.wikipedia.org/wiki/List_of_sovereign_states' -s \
 | scrape -be 'table.wikitable > tbody > tr > td > b > a'
 ```
+
+Example usage using XPATH query:
+
+```bash
+curl -L 'http://en.wikipedia.org/wiki/List_of_sovereign_states' -s \
+| scrape -be '//table[contains(@class, 'wikitable')]/tbody/tr/td/b/a'
+```
+
+`-e` to set the query and `-b` to add `<html>` and `<body>` tags to the HTML output.
 
 It gives you back: 
 
@@ -45,3 +54,4 @@ It gives you back:
  </body>
 </html>
 ```
+
