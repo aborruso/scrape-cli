@@ -7,14 +7,14 @@ It extracts HTML elements using XPath or CSS selector queries.
 Example usage using CSS selector query:
 
 ```bash
-$ curl -L 'http://en.wikipedia.org/wiki/List_of_sovereign_states' -s \
+$ curl -L 'https://en.wikipedia.org/wiki/List_of_sovereign_states' -s \
 | scrape -be 'table.wikitable > tbody > tr > td > b > a'
 ```
 
 Example usage using XPATH query:
 
 ```bash
-curl -L 'http://en.wikipedia.org/wiki/List_of_sovereign_states' -s \
+curl -L 'https://en.wikipedia.org/wiki/List_of_sovereign_states' -s \
 | scrape -be '//table[contains(@class, 'wikitable')]/tbody/tr/td/b/a'
 ```
 
