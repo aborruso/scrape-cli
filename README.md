@@ -57,3 +57,8 @@ It gives you back:
 </html>
 ```
 
+## Note on building
+
+Built in Python 2 environment, using `pyinstaller --onefile scrape.py` command.
+
+For windows it's better to install - using pip - first `cssselector` and then `lxml`.
