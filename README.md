@@ -71,8 +71,8 @@ sudo chmod +x /usr/bin/scrape
 # use it
 ```
 
-## Note on building
+# Note on building it
 
-Built in Python 2 environment, using `pyinstaller --onefile scrape.py` command.
+First of all it's mandatory to install `cssselector` and then `lxml` in this order (using pip).
 
-For windows it's better to install - using pip - first `cssselector` and then `lxml`.
+Than I have built it in Python 2 environment, using [pyinstaller](https://www.pyinstaller.org/) and this command: `pyinstaller --onefile scrape.py`.
