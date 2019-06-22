@@ -1,6 +1,6 @@
 # scrape cli
 
-It's the Linux command-line version (built using [pyinstaller](http://www.pyinstaller.org/)) of a [great scraping tool](https://github.com/jeroenjanssens/data-science-at-the-command-line/blob/master/tools/scrape) written by [Jeroen Janssens](http://jeroenjanssens.com). 
+It's the Linux command-line version (built using [pyinstaller](http://www.pyinstaller.org/)) of a [great scraping tool](https://github.com/jeroenjanssens/data-science-at-the-command-line/blob/master/tools/scrape) written by [Jeroen Janssens](http://jeroenjanssens.com).
 
 It extracts HTML elements using XPath or CSS selector queries.
 
@@ -20,7 +20,7 @@ curl -L 'https://en.wikipedia.org/wiki/List_of_sovereign_states' -s \
 
 `-e` to set the query and `-b` to add `<html>`, `<head>` and `<body>` tags to the HTML output.
 
-It gives you back: 
+It gives you back:
 
 ```html
 <html>
@@ -55,6 +55,20 @@ It gives you back:
 ...
  </body>
 </html>
+```
+
+# How to install it Linux
+
+```bash
+# go to the home folder
+cd ~
+# download scrape-cli
+wget "https://github.com/aborruso/scrape-cli/releases/download/v1.0/scrape"
+# move it in a PATH folder as /usr/bin
+sudo mv ./scrape /usr/bin
+# give it execute permission
+sudo chmod +x /usr/bin/scrape
+# use it
 ```
 
 ## Note on building
