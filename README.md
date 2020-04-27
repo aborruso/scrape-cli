@@ -73,9 +73,9 @@ sudo chmod +x /usr/bin/scrape
 
 # Note on building it
 
-The original source is written in Python 2, then I have built it in Python 2 environment.
-
-It's mandatory to install in this environment `cssselect` and then `lxml`, in this order (using pip).
+The original source is written in Python 2, then I have built it in Python 2 environment.<br>
+There are two modules requirements: install in this environment `cssselect` and then `lxml`, in this order (using pip).
 
 I have built it using [pyinstaller](https://www.pyinstaller.org/) and this command: `pyinstaller --onefile scrape.py`.<br>
-Once you have built it, you can use it as an executable, in any environment
+
+Once I have built it, it's an executable, and it's possible to use it in any environment.
