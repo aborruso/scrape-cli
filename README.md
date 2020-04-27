@@ -57,14 +57,14 @@ It gives you back:
 </html>
 ```
 
-# How to install it Linux
+# How to use it Linux
 
 ```bash
-# go to the home folder
+# go in example to the home folder
 cd ~
 # download scrape-cli
 wget "https://github.com/aborruso/scrape-cli/releases/download/v1.0/scrape"
-# move it in a PATH folder as /usr/bin
+# move it in a folder of your PATH as /usr/bin
 sudo mv ./scrape /usr/bin
 # give it execute permission
 sudo chmod +x /usr/bin/scrape
@@ -75,4 +75,4 @@ sudo chmod +x /usr/bin/scrape
 
 First of all it's mandatory to install `cssselect` and then `lxml` in this order (using pip).
 
-Than I have built it in Python 2 environment, using [pyinstaller](https://www.pyinstaller.org/) and this command: `pyinstaller --onefile scrape.py`.
+The original cose is written in Python 2, than I have built it in Python 2 environment, using [pyinstaller](https://www.pyinstaller.org/) and this command: `pyinstaller --onefile scrape.py`.
