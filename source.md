@@ -8,7 +8,12 @@
 | b       | 30      |
 
 
-## Subtitle 2
+## Subtitle 2 - another table
+
+| Field 1 | Field 2 |
+| :------ | ------: |
+| a       | 20      |
+| b       | 30      |
 
 ## Subtitle 3
 
