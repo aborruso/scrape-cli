@@ -5,6 +5,7 @@ relative_links:
   collections: true
 include:
   - README.md
+  - source.md
 remote_theme: "pages-themes/primer"
 title: scrape cli
 description: a command-line tool to extract HTML elements using an XPath query or CSS3 selector
