@@ -7,7 +7,7 @@ It extracts HTML elements using [XPath](https://www.w3schools.com/xml/xpath_intr
 Example usage using CSS selector query:
 
 ```bash
-$ curl -L 'https://en.wikipedia.org/wiki/List_of_sovereign_states' -s \
+curl -L 'https://en.wikipedia.org/wiki/List_of_sovereign_states' -s \
 | scrape -be 'table.wikitable > tbody > tr > td > b > a'
 ```
 
