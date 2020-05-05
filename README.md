@@ -20,8 +20,6 @@ curl -L 'https://en.wikipedia.org/wiki/List_of_sovereign_states' -s \
 | scrape -be '//table[contains(@class, 'wikitable')]/tbody/tr/td/b/a'
 ```
 
-`-e` to set the query and `-b` to add `<html>`, `<head>` and `<body>` tags to the HTML output.
-
 give you back:
 
 ```html
@@ -58,6 +56,11 @@ give you back:
  </body>
 </html>
 ```
+
+Some notes on the commands:
+
+- `-e` to set the query
+- `-b` to add `<html>`, `<head>` and `<body>` tags to the HTML output.
 
 # How to use it in Linux
 
