@@ -1,17 +1,19 @@
 # scrape cli
 
-It's the Linux & Windows command-line version (built using [pyinstaller](http://www.pyinstaller.org/)) of a great and simple [scraping tool](https://github.com/jeroenjanssens/data-science-at-the-command-line/blob/master/tools/scrape) written by [Jeroen Janssens](http://jeroenjanssens.com).
+It's a **command-line tool** to **extract** HTML elements using an [**XPath**](https://www.w3schools.com/xml/xpath_intro.asp) query or [**CSS3 selector**](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors).
 
-It extracts HTML elements using [XPath](https://www.w3schools.com/xml/xpath_intro.asp) or [CSS selector](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors) queries.
+It's based on the great and simple [scraping tool](https://github.com/jeroenjanssens/data-science-at-the-command-line/blob/master/tools/scrape) written by [**Jeroen Janssens**](http://jeroenjanssens.com).
 
-Example usage using CSS selector query:
+# How does it work?
+
+A CSS selector query like this
 
 ```bash
 curl -L 'https://en.wikipedia.org/wiki/List_of_sovereign_states' -s \
 | scrape -be 'table.wikitable > tbody > tr > td > b > a'
 ```
 
-Example usage using XPATH query:
+or an XPATH query like this one:
 
 ```bash
 curl -L 'https://en.wikipedia.org/wiki/List_of_sovereign_states' -s \
@@ -20,7 +22,7 @@ curl -L 'https://en.wikipedia.org/wiki/List_of_sovereign_states' -s \
 
 `-e` to set the query and `-b` to add `<html>`, `<head>` and `<body>` tags to the HTML output.
 
-It gives you back:
+give you back:
 
 ```html
 <html>
@@ -57,7 +59,7 @@ It gives you back:
 </html>
 ```
 
-# How to use it Linux
+# How to use it in Linux
 
 ```bash
 # go in example to the home folder
