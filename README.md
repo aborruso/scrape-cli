@@ -78,4 +78,4 @@ There are two modules requirements: install in this environment `cssselect` and 
 
 I have built it using [pyinstaller](https://www.pyinstaller.org/) and this command: `pyinstaller --onefile scrape.py`.<br>
 
-Once I have built it, it's an executable, and it's possible to use it in any environment.
+Once you have built it, it's an executable, and it's possible to use it in any environment.
