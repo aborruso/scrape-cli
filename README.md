@@ -8,7 +8,7 @@ It's based on the great and simple [scraping tool](https://github.com/jeroenjans
 - [How to use it in Linux](#how-to-use-it-in-linux)
 - [Note on building it](#note-on-building-it)
 
-# How does it work?
+## How does it work?
 
 A CSS selector query like this
 
@@ -66,7 +66,7 @@ Some notes on the commands:
 - `-e` to set the query
 - `-b` to add `<html>`, `<head>` and `<body>` tags to the HTML output.
 
-# How to use it in Linux
+## How to use it in Linux
 
 ```bash
 # go in example to the home folder
@@ -80,7 +80,7 @@ sudo chmod +x /usr/bin/scrape
 # use it
 ```
 
-# Note on building it
+## Note on building it
 
 The original source is written in Python 2, then I have built it in Python 2 environment.<br>
 There are two modules requirements: install in this environment `cssselect` and then `lxml`, in this order (using pip).
