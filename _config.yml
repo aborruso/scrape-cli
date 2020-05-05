@@ -1,0 +1,11 @@
+plugins:
+  - jekyll-relative-links
+relative_links:
+  enabled: true
+  collections: true
+include:
+  - README.md
+remote_theme: "pages-themes/primer"
+title: scrape cli
+description: a command-line tool to extract HTML elements using an XPath query or CSS3 selector
+lang: en-US
