@@ -1,0 +1,9 @@
+// Place your settings in this file to overwrite default and user settings.
+{
+    "markdown.extension.toc.omittedFromToc": {
+        // Use a path relative to your workspace.
+        "README.md": [
+            "# scrape cli"
+        ]
+    }
+}

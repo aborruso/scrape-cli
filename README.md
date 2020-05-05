@@ -4,6 +4,10 @@ It's a **command-line tool** to **extract** HTML elements using an [**XPath**](h
 
 It's based on the great and simple [scraping tool](https://github.com/jeroenjanssens/data-science-at-the-command-line/blob/master/tools/scrape) written by [**Jeroen Janssens**](http://jeroenjanssens.com).
 
+- [How does it work?](#how-does-it-work)
+- [How to use it in Linux](#how-to-use-it-in-linux)
+- [Note on building it](#note-on-building-it)
+
 # How does it work?
 
 A CSS selector query like this
