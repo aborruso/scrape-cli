@@ -1,6 +1,6 @@
 # scrape cli
 
-It's the Linux command-line version (built using [pyinstaller](http://www.pyinstaller.org/)) of a great and simple [scraping tool](https://github.com/jeroenjanssens/data-science-at-the-command-line/blob/master/tools/scrape) written by [Jeroen Janssens](http://jeroenjanssens.com).
+It's the Linux & Windows command-line version (built using [pyinstaller](http://www.pyinstaller.org/)) of a great and simple [scraping tool](https://github.com/jeroenjanssens/data-science-at-the-command-line/blob/master/tools/scrape) written by [Jeroen Janssens](http://jeroenjanssens.com).
 
 It extracts HTML elements using [XPath](https://www.w3schools.com/xml/xpath_intro.asp) or [CSS selector](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors) queries.
 
