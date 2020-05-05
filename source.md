@@ -3,9 +3,9 @@
 ## Subtitle 1 - a table
 
 | Field 1 | Field 2 |
-|---|---|
-|a|20|
-|b|30|
+| :-----: | :-----: |
+| a       | 20      |
+| b       | 30      |
 
 
 ## Subtitle 2
