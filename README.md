@@ -80,6 +80,8 @@ sudo chmod +x /usr/bin/scrape
 # use it
 ```
 
+**Please note**: in OSX it seems not to work ([#8](https://github.com/aborruso/scrape-cli/issues)).
+
 ## Note on building it
 
 The original source is written in Python 2, then I have built it in Python 2 environment.<br>
