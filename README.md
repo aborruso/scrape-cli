@@ -80,7 +80,7 @@ sudo chmod +x /usr/bin/scrape
 # use it
 ```
 
-**Please note**: in OSX it seems not to work ([#8](https://github.com/aborruso/scrape-cli/issues)).
+**Please note**: in OSX it seems not to work ([#8](https://github.com/aborruso/scrape-cli/issues/8)).
 
 ## Note on building it
 
