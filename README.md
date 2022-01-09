@@ -24,7 +24,7 @@ curl -L 'https://en.wikipedia.org/wiki/List_of_sovereign_states' -s \
 | scrape -be '//table[contains(@class, 'wikitable')]/tbody/tr/td/b/a'
 ```
 
-give you back:
+gives you back:
 
 ```html
 <html>
