@@ -108,7 +108,7 @@ If you are looking for precompiled executables for Linux, please refer to the [R
 
 I have built the `scrape-linux-x86_64` precompiled binary, using [pyinstaller](https://www.pyinstaller.org/) and this command: `pyinstaller --onefile scrape.py`.<br>
 
-Once you have built it, it's an executable, and it's possible to use it in any environment.
+Once you have built it, it's an executable, and it's possible to use it Linux 64 bit environment.
 
 ## License
 
