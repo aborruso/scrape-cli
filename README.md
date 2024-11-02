@@ -24,7 +24,7 @@ pip install scrape-cli
 Or install from source:
 
 ```bash
-git clone https://github.com/[username]/scrape-cli
+git clone https://github.com/aborruso/scrape-cli
 cd scrape-cli
 pip install -e .
 ```
