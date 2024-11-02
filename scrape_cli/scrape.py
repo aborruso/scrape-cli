@@ -42,7 +42,7 @@ def main():
 
     expression = [e if e.startswith('//') else GenericTranslator().css_to_xpath(e) for e in args.expression]
 
-    html_parser = etree.HTMLParser(encoding='utf-8', recover=True, strip_cdata=True)
+    html_parser = etree.HTMLParser(encoding='utf-8', recover=True)
 
     inp = open(args.file, 'rb') if args.file else args.html
     if args.rawinput:
