@@ -10,3 +10,4 @@ ENV/
 build/
 *.egg-info/
 __pycache__/
+*.spec
