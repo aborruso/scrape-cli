@@ -101,28 +101,12 @@ Some notes on the commands:
 - `-e` to set the query
 - `-b` to add `<html>`, `<head>` and `<body>` tags to the HTML output.
 
-## How to use it in Linux
 
-```bash
-# go in example to the home folder
-cd ~
-# download scrape-cli
-wget "https://github.com/aborruso/scrape-cli/releases/download/1.1/scrape-linux-x86_64"
-# move it in a folder of your PATH as /usr/bin
-sudo mv ./scrape-linux-x86_64 /usr/bin/scrape
-# give it execute permission
-sudo chmod +x /usr/bin/scrape
-# use it
-```
+## Linux 64 bit precompiled binary
 
-**Please note**: in OSX it seems not to work ([#8](https://github.com/aborruso/scrape-cli/issues/8)).
+If you are looking for precompiled executables for Linux, please refer to the [Releases](https://github.com/aborruso/scrape-cli/releases) page on GitHub where you can find the latest precompiled binary file.
 
-## Note on building it
-
-The original source is written in Python 2, then I have built it in Python 2 environment.<br>
-There are two modules requirements: install in this environment `cssselect` and then `lxml`, in this order (using pip).
-
-I have built it using [pyinstaller](https://www.pyinstaller.org/) and this command: `pyinstaller --onefile scrape.py`.<br>
+I have built the `scrape-linux-x86_64` precompiled binary, using [pyinstaller](https://www.pyinstaller.org/) and this command: `pyinstaller --onefile scrape.py`.<br>
 
 Once you have built it, it's an executable, and it's possible to use it in any environment.
 
