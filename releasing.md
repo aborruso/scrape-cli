@@ -4,70 +4,133 @@ This document outlines the steps needed to release a new version to PyPI.
 
 ## Pre-release Checklist
 
-1. Activate virtual environment:
+1. **Update version number** in the following files:
 
-```
-python -m venv venv
-source venv/bin/activate  # Linux/MacOS
-```
-
-2. Update version number in:
    - `setup.py`
    - `scrape_cli/__init__.py`
 
-3. Update CHANGELOG.md
-   - Add new version section
-   - Document all significant changes
-   - Date the release
+2. **Update the CHANGELOG**:
+
+   - Add a new section for the upcoming version.
+   - Document all significant changes.
+   - Include the release date.
+
+3. **Install Dependencies**:
+
+   - Ensure all dependencies are installed properly:
+     ```
+     pip install -r requirements.txt
+     ```
 
 ## Build Process
 
-1. Clean previous builds:
+1. **Activate the virtual environment** (if not already activated):
 
-```
-rm -rf build/ dist/ *.egg-info
-```
+   ```
+   source venv/bin/activate  # Linux/MacOS
+   ```
 
-2. Build the distribution packages:
+2. **Clean previous builds**:
 
-```
-python3 -m build
-```
+   ```
+   rm -rf build/ dist/ *.egg-info
+   ```
 
-3. Check the built distributions:
+3. **Build the distribution packages**:
 
-```
-twine check dist/*
-```
+   ```
+   python3 -m build
+   ```
+
+4. **Verify the built distributions**:
+
+   ```
+   twine check dist/*
+   ```
+
+5. **Local Installation Test** (optional but recommended):
+
+   - Install the built package locally to verify it:
+     ```
+     pip install dist/<package-name>.tar.gz
+     ```
 
 ## Final Release
 
-1. Upload the distribution packages to PyPI:
+1. **Upload the distribution packages to PyPI**:
 
-```
-twine upload dist/*
-```
+   ```
+   twine upload dist/*
+   ```
 
-2. Verify installation:
+2. **Verify Installation**:
 
-```
-pip install <package-name>
-```
+   ```
+   pip install <package-name>
+   ```
 
 ## Post-release Checklist
 
-1. Create a new GitHub release
+1. **Tag the Release in Git**:
 
+   ```
+   git tag -a <version> -m "Release <version>"
+   git push origin <version>
+   ```
+
+2. **Create a GitHub Release**:
+
+   - Go to the releases page on GitHub.
+   - Create a new release using the version tag.
+   - Add release notes summarizing the changes.
+   - Announce the release if needed.
+
+3. **Update Documentation**:
+
+   - Update relevant parts of the documentation.
+   - Post announcements in channels such as Slack or mailing lists (if applicable).
+
+## Rollback Process (Optional)
+
+1. **Remove the release from PyPI** if issues are found:
+
+   ```
+   twine delete <package-name> <version>
+   ```
+
+2. **Revert the Git Tag**:
+
+   ```
+   git tag -d <version>
+   git push origin :refs/tags/<version>
+   ```
+
+## Automate the Release Process (Optional)
+
+To save time and reduce the chance of manual errors, consider using a script like the one below for automation:
+
+```bash
+#!/bin/bash
+set -e
+
+# Activate the virtual environment
+source venv/bin/activate
+
+# Clean previous builds
+rm -rf build/ dist/ *.egg-info
+
+# Build the package
+python3 -m build
+
+# Check the build
+twine check dist/*
+
+# Upload to PyPI
+twine upload dist/*
+
+# Tag the release
+git tag -a $1 -m "Release $1"
+git push origin $1
 ```
-git tag -a <version> -m "Release <version>"
-git push origin <version>
-```
 
-2. Create a GitHub release (if using GitHub)
-  - Navigate to releases page
-  - Create new release using the tag
-  - Add release notes
-  - Announce release (if applicable)
-
-3. Update documentation website
-  - Post announcements in relevant channels
+This script simplifies many of the steps and ensures that all commands run in sequence.
