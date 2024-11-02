@@ -1,3 +1,6 @@
+[![PyPI version](https://badge.fury.io/py/scrape-cli.svg)](https://badge.fury.io/py/scrape-cli)
+[![Python Versions](https://img.shields.io/pypi/pyversions/scrape-cli.svg)](https://pypi.org/project/scrape-cli/)
+
 # scrape cli
 
 It's a **command-line tool** to **extract** HTML elements using an [**XPath**](https://www.w3schools.com/xml/xpath_intro.asp) query or [**CSS3 selector**](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors).
@@ -7,6 +10,30 @@ It's based on the great and simple [scraping tool](https://github.com/jeroenjans
 - [How does it work?](#how-does-it-work)
 - [How to use it in Linux](#how-to-use-it-in-linux)
 - [Note on building it](#note-on-building-it)
+
+
+
+## Installation
+
+You can install scrape-cli using pip:
+
+```bash
+pip install scrape-cli
+```
+
+Or install from source:
+
+```bash
+git clone https://github.com/[username]/scrape-cli
+cd scrape-cli
+pip install -e .
+```
+
+## Requirements
+- Python >=3.6
+- requests
+- lxml
+- cssselect
 
 ## How does it work?
 
@@ -72,9 +99,9 @@ Some notes on the commands:
 # go in example to the home folder
 cd ~
 # download scrape-cli
-wget "https://github.com/aborruso/scrape-cli/releases/download/v1.0/scrape"
+wget "https://github.com/aborruso/scrape-cli/releases/download/1.1/scrape-linux-x86_64"
 # move it in a folder of your PATH as /usr/bin
-sudo mv ./scrape /usr/bin
+sudo mv ./scrape-linux-x86_64 /usr/bin/scrape
 # give it execute permission
 sudo chmod +x /usr/bin/scrape
 # use it
@@ -90,3 +117,7 @@ There are two modules requirements: install in this environment `cssselect` and 
 I have built it using [pyinstaller](https://www.pyinstaller.org/) and this command: `pyinstaller --onefile scrape.py`.<br>
 
 Once you have built it, it's an executable, and it's possible to use it in any environment.
+
+## License
+
+[MIT](LICENSE)
