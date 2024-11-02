@@ -17,6 +17,14 @@ It's based on the great and simple [scraping tool](https://github.com/jeroenjans
 
 You can install scrape-cli using pip:
 
+### Using pipx (recommended for CLI tools)
+
+```bash
+pipx install scrape-cli
+```
+
+Using pip
+
 ```bash
 pip install scrape-cli
 ```
