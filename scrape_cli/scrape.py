@@ -3,8 +3,8 @@
 # scrape: Extract HTML elements using an XPath query or CSS3 selector.
 #
 # Example usage:
-# $ curl 'http://en.wikipedia.org/wiki/List_of_sovereign_states' -s \
-# | scrape -be 'table.wikitable > tr > td > b > a'
+# $ curl 'https://en.wikipedia.org/wiki/List_of_sovereign_states' -s \
+# | scrape -be 'table.wikitable > tbody > tr > td > b > a'
 #
 # Dependencies: lxml and cssselector
 #
