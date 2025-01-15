@@ -45,6 +45,42 @@ pip install -e .
 
 ## How does it work?
 
+### Using the Test HTML File
+
+In the `resources` directory you'll find a `test.html` file that you can use to test various scraping scenarios. Here are some examples:
+
+1. Extract all table data:
+```bash
+scrape -e "table.data-table td" resources/test.html
+```
+
+2. Get all list items:
+```bash
+scrape -e "ul.items-list li" resources/test.html
+```
+
+3. Extract specific attributes:
+```bash
+scrape -e "a.external-link" -a href resources/test.html
+```
+
+4. Check if an element exists:
+```bash
+scrape -e "#main-title" --check-existence resources/test.html
+```
+
+5. Extract nested elements:
+```bash
+scrape -e ".nested-elements p" resources/test.html
+```
+
+6. Get elements with specific attributes:
+```bash
+scrape -e "[data-test]" resources/test.html
+```
+
+### General Usage Examples
+
 A CSS selector query like this
 
 ```bash
