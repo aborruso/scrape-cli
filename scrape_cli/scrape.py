@@ -34,6 +34,10 @@ def main():
         description='Extract HTML elements using an XPath query or CSS3 selector.',
         epilog='Example: cat page.html | python scrape.py -e "//a/@href"'
     )
+    
+    # Check for incorrect argument order (-eb instead of -be)
+    if '-eb' in ' '.join(sys.argv):
+        sys.exit("Error: The correct order is -be (body first, then expression). Please use -be instead of -eb.")
     # Defines the HTML input argument (can be a file, URL or stdin)
     parser.add_argument('html', nargs='?', type=str, default='',
                         help="HTML input (file, URL or stdin, default: stdin)", metavar="HTML")
