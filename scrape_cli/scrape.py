@@ -17,6 +17,13 @@ from lxml import etree
 from cssselect import GenericTranslator
 from sys import exit
 
+def convert_css_to_xpath(expression):
+    try:
+        return GenericTranslator().css_to_xpath(expression)
+    except Exception as e:
+        print(f"Error converting CSS selector to XPath: {e}")
+        sys.exit(1)
+
 def is_xpath(expression):
     # Check if the provided expression is XPath (instead of a CSS selector)
     return expression.startswith("//")
@@ -74,10 +81,22 @@ def main():
                 sys.exit(1)
     else:
         # If the input is from stdin
-        inp = sys.stdin.buffer.read()
+        try:
+            inp = sys.stdin.buffer.read()
+            if not inp:
+                print("Error: No input received from stdin")
+                sys.exit(1)
+        except Exception as e:
+            print(f"Error reading input: {e}")
+            sys.exit(1)
+
+    # Check for empty or invalid input
+    if not inp:
+        print("Error: Input is empty or invalid")
+        sys.exit(1)
 
     # Convert CSS selectors to XPath if necessary
-    expression = [e if is_xpath(e) else GenericTranslator().css_to_xpath(e) for e in args.expression]
+    expression = [e if is_xpath(e) else convert_css_to_xpath(e) for e in args.expression]
 
     # Create an HTML parser with options for error recovery
     html_parser = etree.HTMLParser(encoding='utf-8', recover=True)
