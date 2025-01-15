@@ -121,6 +121,8 @@ curl -L 'https://en.wikipedia.org/wiki/List_of_sovereign_states' -s \
 | scrape -be 'table.wikitable > tbody > tr > td > b > a'
 ```
 
+**Note:** When using both `-b` and `-e` options together, they must be specified in the order `-be` (body first, then expression). Using `-eb` will not work correctly.
+
 or an XPATH query like this one:
 
 ```bash
