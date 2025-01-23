@@ -11,6 +11,7 @@
 # Author: http://jeroenjanssens.com
 
 import sys
+import re
 import argparse
 import requests
 from lxml import etree
@@ -105,8 +106,29 @@ def main():
     # Create an HTML parser with options for error recovery
     html_parser = etree.HTMLParser(encoding='utf-8', recover=True)
 
+    def detect_charset(html_bytes):
+        """Try to detect charset from meta tag"""
+        try:
+            # Look for charset in first 1024 bytes to be efficient
+            head = html_bytes[:1024].decode('ascii', errors='ignore').lower()
+            meta = re.search(r'<meta[^>]+charset=["\']?([\w-]+)', head)
+            if meta:
+                return meta.group(1)
+        except:
+            pass
+        return None
+
     # Try to parse the HTML input
     try:
+        # First try to detect charset from meta tag
+        charset = detect_charset(inp)
+        if charset:
+            try:
+                inp = inp.decode(charset).encode('utf-8')
+            except (UnicodeDecodeError, LookupError):
+                # If detected charset fails, fall back to default behavior
+                pass
+
         # Try UTF-8 first, fallback to ISO-8859-1 if that fails
         try:
             if args.rawinput:
