@@ -107,12 +107,20 @@ def main():
 
     # Try to parse the HTML input
     try:
-        if args.rawinput:
-            # If rawinput is enabled, do not use the HTML parser
-            document = etree.fromstring(inp)
-        else:
-            document = etree.fromstring(inp, html_parser)
-    except etree.XMLSyntaxError as e:
+        # Try UTF-8 first, fallback to ISO-8859-1 if that fails
+        try:
+            if args.rawinput:
+                document = etree.fromstring(inp)
+            else:
+                document = etree.fromstring(inp, html_parser)
+        except UnicodeDecodeError:
+            # If UTF-8 fails, try ISO-8859-1
+            inp = inp.decode('iso-8859-1').encode('utf-8')
+            if args.rawinput:
+                document = etree.fromstring(inp)
+            else:
+                document = etree.fromstring(inp, html_parser)
+    except (etree.XMLSyntaxError, UnicodeDecodeError) as e:
         # Print an error in case of syntax issues in the HTML
         print(f"Error parsing HTML: {e}")
         sys.exit(1)
