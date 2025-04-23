@@ -38,6 +38,7 @@ pip install -e .
 ```
 
 ## Requirements
+
 - Python >=3.6
 - requests
 - lxml
@@ -50,6 +51,7 @@ pip install -e .
 In the `resources` directory you'll find a `test.html` file that you can use to test various scraping scenarios. Here are some examples:
 
 1. Extract all table data:
+
 ```bash
 # CSS
 scrape -e "table.data-table td" resources/test.html
@@ -58,6 +60,7 @@ scrape -e "//table[contains(@class, 'data-table')]//td" resources/test.html
 ```
 
 2. Get all list items:
+
 ```bash
 # CSS
 scrape -e "ul.items-list li" resources/test.html
@@ -66,6 +69,7 @@ scrape -e "//ul[contains(@class, 'items-list')]/li" resources/test.html
 ```
 
 3. Extract specific attributes:
+
 ```bash
 # CSS
 scrape -e "a.external-link" -a href resources/test.html
@@ -74,6 +78,7 @@ scrape -e "//a[contains(@class, 'external-link')]/@href" resources/test.html
 ```
 
 4. Check if an element exists:
+
 ```bash
 # CSS
 scrape -e "#main-title" --check-existence resources/test.html
@@ -82,6 +87,7 @@ scrape -e "//h1[@id='main-title']" --check-existence resources/test.html
 ```
 
 5. Extract nested elements:
+
 ```bash
 # CSS
 scrape -e ".nested-elements p" resources/test.html
@@ -90,6 +96,7 @@ scrape -e "//div[contains(@class, 'nested-elements')]//p" resources/test.html
 ```
 
 6. Get elements with specific attributes:
+
 ```bash
 # CSS
 scrape -e "[data-test]" resources/test.html
@@ -98,6 +105,7 @@ scrape -e "//*[@data-test]" resources/test.html
 ```
 
 7. Additional XPath examples:
+
 ```bash
 # Get all links with href attribute
 scrape -e "//a[@href]" resources/test.html
