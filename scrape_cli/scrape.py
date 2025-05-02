@@ -10,6 +10,8 @@
 #
 # Author: http://jeroenjanssens.com
 
+from scrape_cli import __version__
+
 import sys
 import re
 import argparse
@@ -35,6 +37,8 @@ def main():
         description='Extract HTML elements using an XPath query or CSS3 selector.',
         epilog='Example: cat page.html | python scrape.py -e "//a/@href"'
     )
+
+    parser.add_argument('--version', action='version', version=f'%(prog)s {__version__}')
 
     # Check for incorrect argument order (-eb instead of -be)
     if '-eb' in ' '.join(sys.argv):
