@@ -1,4 +1,4 @@
-# 2025-01-23
+# 2025-05-02
 
 - Added charset detection from HTML meta tags
 - Added support for ISO-8859-1 encoding fallback
