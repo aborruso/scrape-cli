@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Page for Scrape CLI</title>
+</head>
+<body>
+    <h1 id="main-title">Welcome to the Test Page</h1>
+    
+    <!-- Test table -->
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td>John Doe</td>
+                <td>john@example.com</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>Jane Smith</td>
+                <td>jane@example.com</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Test list -->
+    <ul class="items-list">
+        <li>First item</li>
+        <li>Second item</li>
+        <li>Third item</li>
+    </ul>
+
+    <!-- Test links -->
+    <div class="links-section">
+        <a href="https://example.com" class="external-link">Example Link</a>
+        <a href="/about" class="internal-link">About Page</a>
+    </div>
+
+    <!-- Test forms -->
+    <form id="contact-form">
+        <input type="text" name="name" placeholder="Your name">
+        <input type="email" name="email" placeholder="Your email">
+        <textarea name="message" placeholder="Your message"></textarea>
+        <button type="submit">Send</button>
+    </form>
+
+    <!-- Test hidden elements -->
+    <div style="display:none;" class="hidden-content">
+        <p>This is hidden content</p>
+    </div>
+
+    <!-- Test attributes -->
+    <div data-test="example" class="attributes-test">
+        <span data-value="123">Test Value</span>
+    </div>
+
+    <!-- Test nested elements -->
+    <div class="nested-elements">
+        <div>
+            <p>Nested paragraph 1</p>
+            <p>Nested paragraph 2</p>
+        </div>
+    </div>
+
+    <!-- Test special characters -->
+    <div class="special-chars">
+        <p>Test &amp; special characters: &lt;&gt;&quot;&#39;</p>
+    </div>
+
+    <!-- Test empty elements -->
+    <div class="empty-elements">
+        <p></p>
+        <span></span>
+    </div>
+
+    <!-- Test multiple classes -->
+    <div class="class1 class2 class3">
+        <p>Element with multiple classes</p>
+    </div>
+
+    <!-- Test specific attributes -->
+    <div class="specific-attributes">
+        <input type="checkbox" checked disabled>
+        <img src="image.jpg" alt="Test image" width="300" height="200">
+    </div>
+
+    <!-- Test dynamic content -->
+    <div id="dynamic-content">
+        <script>
+            document.getElementById('dynamic-content').innerHTML = '<p>Dynamic content loaded</p>';
+        </script>
+    </div>
+
+    <!-- Test complex whitespace -->
+    <div class="whitespace-test">
+        <p>
+            This text has
+            multiple    spaces
+            and
+            line breaks
+        </p>
+    </div>
+</body>
+</html>

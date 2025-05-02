@@ -1,7 +1,9 @@
-# 2024-11-02
+# 2025-05-02
 
-- published in pypi https://pypi.org/project/scrape-cli/
+- Added charset detection from HTML meta tags
+- Added support for ISO-8859-1 encoding fallback
+- Improved HTML parsing with better encoding handling
 
 # 2020-05-05
 
-- firts version of website
+- First version of website
