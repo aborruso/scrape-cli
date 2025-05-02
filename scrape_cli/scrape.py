@@ -10,14 +10,20 @@
 #
 # Author: http://jeroenjanssens.com
 
-from scrape_cli import __version__
-
+import os
 import sys
 import re
 import argparse
 import requests
 from lxml import etree
 from cssselect import GenericTranslator
+
+# Read version from __init__.py
+init_file = os.path.join(os.path.dirname(__file__), '__init__.py')
+with open(init_file) as f:
+    version_match = re.search(r"__version__\s*=\s*['\"]([^'\"]+)['\"]", f.read())
+    __version__ = version_match.group(1) if version_match else "unknown"
+
 from sys import exit
 
 def convert_css_to_xpath(expression):
