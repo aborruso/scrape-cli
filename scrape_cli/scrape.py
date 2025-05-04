@@ -34,8 +34,27 @@ def convert_css_to_xpath(expression):
         sys.exit(1)
 
 def is_xpath(expression):
-    # Check if the provided expression is XPath (instead of a CSS selector)
-    return expression.startswith("//")
+    """
+    Check if the expression is XPath by looking for common XPath patterns:
+    - Starts with / or //
+    - Contains XPath axes (::)
+    - Contains node tests with parentheses
+    - Contains predicates with square brackets
+    - Contains position functions like last() or position()
+    """
+    xpath_patterns = [
+        r'^/',                    # Starts with single or double slash
+        r'::',                    # Contains axis specifier
+        r'\([^)]*\)',            # Contains parentheses
+        r'\[[^\]]*\]',           # Contains square brackets
+        r'last\(\)',             # XPath functions
+        r'position\(\)',
+        r'contains\(',
+        r'text\(\)',
+        r'@',                    # Attribute selector
+    ]
+
+    return any(re.search(pattern, expression) for pattern in xpath_patterns)
 
 def main():
     # Command line argument parser definition

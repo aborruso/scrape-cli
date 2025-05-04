@@ -1,3 +1,7 @@
+# 2025-05-04
+
+- Improved XPath detection with support for complex expressions (predicates, functions, and axes)
+
 # 2025-05-02
 
 - Added charset detection from HTML meta tags
