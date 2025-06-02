@@ -175,10 +175,30 @@ gives you back:
 </html>
 ```
 
+### Text Extraction
+
+You can extract only the text content (without HTML tags) using the `-t` option, which is particularly useful for LLMs and text processing:
+
+```bash
+# Extract all text content from a page
+curl -L 'https://en.wikipedia.org/wiki/List_of_sovereign_states' -s \
+| scrape -t
+
+# Extract text from specific elements
+curl -L 'https://en.wikipedia.org/wiki/List_of_sovereign_states' -s \
+| scrape -te 'table.wikitable td'
+
+# Extract text from headings only
+scrape -te 'h1, h2, h3' resources/test.html
+```
+
+The `-t` option automatically excludes text from `<script>` and `<style>` tags and cleans up whitespace for better readability.
+
 Some notes on the commands:
 
 - `-e` to set the query
-- `-b` to add `<html>`, `<head>` and `<body>` tags to the HTML output.
+- `-b` to add `<html>`, `<head>` and `<body>` tags to the HTML output
+- `-t` to extract only text content (useful for LLMs and text processing)
 
 
 ## Linux 64 bit precompiled binary

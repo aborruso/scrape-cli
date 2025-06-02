@@ -1,3 +1,7 @@
+# 2025-06-02
+
+- Added the option `-t` to extract only text content from HTML
+
 # 2025-05-04
 
 - Improved XPath detection with support for complex expressions (predicates, functions, and axes)
