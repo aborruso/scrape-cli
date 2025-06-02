@@ -26,6 +26,25 @@ with open(init_file) as f:
 
 from sys import exit
 
+def clean_text(text):
+    """
+    Clean text by:
+    - Removing multiple consecutive empty lines (max 1 empty line)
+    - Replacing multiple spaces with single space
+    - Removing leading whitespace from lines
+    """
+    # Replace multiple spaces with single space
+    text = re.sub(r' +', ' ', text)
+    # Replace any sequence of 3 or more newlines with just 2 newlines (max 1 empty line)
+    text = re.sub(r'\n{3,}', '\n\n', text)
+    # Replace newlines with whitespace followed by more newlines with just 2 newlines
+    text = re.sub(r'\n\s*\n\s*\n+', '\n\n', text)
+    # Remove leading and trailing whitespace from each line
+    text = '\n'.join(line.strip() for line in text.split('\n'))
+    # Remove trailing whitespace at the end
+    text = text.strip()
+    return text
+
 def convert_css_to_xpath(expression):
     try:
         return GenericTranslator().css_to_xpath(expression)
@@ -77,6 +96,9 @@ def main():
     # Option to include the result within HTML and BODY tags
     parser.add_argument('-b', '--body', action='store_true', default=False,
                         help="Include result in HTML and BODY tags")
+    # Option to extract only text content
+    parser.add_argument('-t', '--text', action='store_true', default=False,
+                        help="Extract only text content (useful for LLMs)")
     # Allows to specify one or more XPath or CSS3 selector expressions
     parser.add_argument('-e', '--expression', default=[], action='append',
                         help="XPath query or CSS3 selector")
@@ -89,9 +111,9 @@ def main():
     parser.add_argument('--check-existence', dest='check_existence', action='store_true')
     args = parser.parse_args()
 
-    # Check that at least one expression is provided by the user
-    if not args.expression:
-        sys.exit("Error: you must provide at least one XPath query or CSS3 selector using the -e option.")
+    # Check that at least one expression is provided by the user (unless using -t option)
+    if not args.expression and not args.text:
+        sys.exit("Error: you must provide at least one XPath query or CSS3 selector using the -e option, or use -t to extract text.")
         parser.print_help()
         sys.exit(1)
 
@@ -130,7 +152,11 @@ def main():
         sys.exit(1)
 
     # Convert CSS selectors to XPath if necessary
-    expression = [e if is_xpath(e) else convert_css_to_xpath(e) for e in args.expression]
+    if args.text and not args.expression:
+        # If -t is used without expressions, default to body text excluding scripts and styles
+        expression = ['//body//text()[not(ancestor::script) and not(ancestor::style)]']
+    else:
+        expression = [e if is_xpath(e) else convert_css_to_xpath(e) for e in args.expression]
 
     # Create an HTML parser with options for error recovery
     html_parser = etree.HTMLParser(encoding='utf-8', recover=True)
@@ -190,6 +216,17 @@ def main():
             if isinstance(el, str):
                 # If the element is a string, use the text directly
                 text = el
+                # Clean the text when using -t option
+                if args.text:
+                    text = clean_text(text)
+            elif args.text:
+                # If -t option is used, extract only text content
+                if hasattr(el, 'text_content'):
+                    text = el.text_content()
+                else:
+                    text = ''.join(el.itertext())
+                # Clean the text when using -t option
+                text = clean_text(text)
             elif not args.argument:
                 # If no attribute is specified, return the element as HTML string
                 text = etree.tostring(el, pretty_print=True).decode('utf-8')
@@ -199,16 +236,22 @@ def main():
             if text is not None:
                 results.append(text.strip())
 
-        # Output handling
-        if args.body:
-            sys.stdout.write("<!DOCTYPE html>\n<html>\n<body>\n")
-            for result in results:
-                sys.stdout.write(result + "\n")
-            sys.stdout.write("</body>\n</html>\n")
-        else:
-            # Normal output
-            for result in results:
-                sys.stdout.write(result + "\n")
+    # Apply final cleaning when using -t option
+    if args.text and results:
+        final_text = '\n'.join(results)
+        final_text = clean_text(final_text)
+        results = [final_text] if final_text else []
+
+    # Output handling
+    if args.body and not args.text:
+        sys.stdout.write("<!DOCTYPE html>\n<html>\n<body>\n")
+        for result in results:
+            sys.stdout.write(result + "\n")
+        sys.stdout.write("</body>\n</html>\n")
+    else:
+        # Normal output (or text-only output when -t is used)
+        for result in results:
+            sys.stdout.write(result + "\n")
 
         sys.stdout.flush()
 
