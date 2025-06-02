@@ -73,7 +73,45 @@ twine check dist/*
 twine upload dist/*
 ```
 
-## 7. Verify Installation
+## 7. Create Linux Binary (Optional)
+
+Se vuoi distribuire un binario precompilato per Linux:
+
+```bash
+# Installa PyInstaller se non già presente
+pip install pyinstaller
+
+# Crea il binario
+pyinstaller --onefile --name scrape scrape_cli/main.py
+
+# Il binario sarà in dist/scrape
+# Testalo
+./dist/scrape --version
+```
+
+### Upload Binary to GitHub Release
+
+```bash
+# Aggiungi il binario alla release GitHub esistente
+gh release upload vX.Y.Z dist/scrape --clobber
+```
+
+Oppure includi il binario durante la creazione della release al punto 5:
+
+```bash
+gh release create vX.Y.Z dist/scrape --title "vX.Y.Z" --notes "## What's Changed
+
+### Features
+* Description of new features
+  - Point 1
+  - Point 2
+  - etc.
+
+### Downloads
+- \`scrape\` - Linux x64 binary"
+```
+
+## 8. Verify Installation
 
 ```bash
 # Verify package is available and installable
@@ -98,3 +136,4 @@ scrape --version
 - `twine`
 - PyPI credentials
 - Git configured
+- `pyinstaller` (per creare il binario Linux precompilato)
