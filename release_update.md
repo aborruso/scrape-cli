@@ -35,7 +35,7 @@ Add new entry at the top of `CHANGELOG.md`:
 ```bash
 git add .
 git commit -m "feat: description of changes"
-git push origin main
+git push origin master
 ```
 
 ## 4. Create and Push Tag
