@@ -6,7 +6,7 @@
 # $ curl 'https://en.wikipedia.org/wiki/List_of_sovereign_states' -s \
 # | scrape -e 'table.wikitable > tbody > tr > td > b > a'
 #
-# Dependencies: lxml, cssselector, requests
+# Dependencies: lxml, cssselect, requests
 #
 # Author: http://jeroenjanssens.com
 
