@@ -113,9 +113,10 @@ def main():
 
     # Check that at least one expression is provided by the user (unless using -t option)
     if not args.expression and not args.text:
-        sys.exit("Error: you must provide at least one XPath query or CSS3 selector using the -e option, or use -t to extract text.")
         parser.print_help()
-        sys.exit(1)
+        sys.exit(
+            "Error: you must provide at least one XPath query or CSS3 selector using the -e option, or use -t to extract text."
+        )
 
     # Determine the source of the input: URL, file, or stdin
     if args.html:
