@@ -82,7 +82,7 @@ Se vuoi distribuire un binario precompilato per Linux:
 pip install pyinstaller
 
 # Crea il binario
-pyinstaller --onefile --name scrape scrape_cli/main.py
+pyinstaller --onefile --name scrape scrape_cli/scrape.py
 
 # Il binario sarà in dist/scrape
 # Testalo
