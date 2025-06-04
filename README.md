@@ -135,7 +135,7 @@ or an XPATH query like this one:
 
 ```bash
 curl -L 'https://en.wikipedia.org/wiki/List_of_sovereign_states' -s \
-| scrape -be '//table[contains(@class, 'wikitable')]/tbody/tr/td/b/a'
+| scrape -be "//table[contains(@class, 'wikitable')]/tbody/tr/td/b/a"
 ```
 
 gives you back:
