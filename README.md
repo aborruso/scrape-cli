@@ -5,7 +5,7 @@
 
 It's a **command-line tool** to **extract** HTML elements using an [**XPath**](https://www.w3schools.com/xml/xpath_intro.asp) query or [**CSS3 selector**](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors).
 
-It's based on the great and simple [scraping tool](https://github.com/jeroenjanssens/data-science-at-the-command-line/blob/book/tools/scrape) written by [**Jeroen Janssens**](http://jeroenjanssens.com).
+It's based on the great and simple [scraping tool](https://github.com/jeroenjanssens/dsutils/blob/master/scrape) written by [**Jeroen Janssens**](http://jeroenjanssens.com).
 
 - [How does it work?](#how-does-it-work)
 - [How to use it in Linux](#how-to-use-it-in-linux)
