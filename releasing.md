@@ -6,7 +6,7 @@ This document outlines the steps needed to release a new version to PyPI.
 
 1. **Update version number** in the following files:
 
-   - `setup.py`
+   - `pyproject.toml`
    - `scrape_cli/__init__.py`
 
 2. **Update the CHANGELOG**:
@@ -78,17 +78,19 @@ This document outlines the steps needed to release a new version to PyPI.
    git push origin <version>
    ```
 
-2. **Create a GitHub Release**:
+2. **Manually create the GitHub release**:
 
-   - Go to the releases page on GitHub.
-   - Create a new release using the version tag.
-   - Add release notes summarizing the changes.
-   - Announce the release if needed.
+   - Go to the releases page on GitHub: https://github.com/aborruso/scrape-cli/releases
+   - Click "Draft a new release".
+   - Select the tag you just created (e.g. v1.1.9).
+   - Enter the title and release notes (you can copy from the CHANGELOG).
+   - Publish the release.
 
 3. **Update Documentation**:
 
    - Update relevant parts of the documentation.
    - Post announcements in channels such as Slack or mailing lists (if applicable).
+   - Update the version badge in the README if present (e.g. PyPI badge or version badge).
 
 ## Rollback Process (Optional)
 
@@ -131,6 +133,8 @@ twine upload dist/*
 # Tag the release
 git tag -a $1 -m "Release $1"
 git push origin $1
+
+# Crea manualmente la release su GitHub dopo il push del tag.
 ```
 
 This script simplifies many of the steps and ensures that all commands run in sequence.
