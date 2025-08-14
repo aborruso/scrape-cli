@@ -91,18 +91,29 @@ This document outlines the steps needed to release a new version to PyPI.
    - Update relevant parts of the documentation.
    - Post announcements in channels such as Slack or mailing lists (if applicable).
    - Update the version badge in the README if present (e.g. PyPI badge or version badge).
+   - If you update README.md, rebuild the package and re-upload to PyPI to sync the PyPI README:
+     1. Edit `README.md` as needed
+     2. Run:
+
+        ```bash
+        python3 -m build
+        twine upload dist/*
+        ```
+     This ensures the PyPI project page always matches the latest README in the repository.
 
 ## Rollback Process (Optional)
 
 1. **Remove the release from PyPI** if issues are found:
 
-   ```
+
+   ```bash
    twine delete <package-name> <version>
    ```
 
 2. **Revert the Git Tag**:
 
-   ```
+
+   ```bash
    git tag -d <version>
    git push origin :refs/tags/<version>
    ```
