@@ -1,4 +1,4 @@
-[![PyPI version](https://badge.fury.io/py/scrape-cli.svg)](https://badge.fury.io/py/scrape-cli)
+[![PyPI version](https://img.shields.io/pypi/v/scrape-cli.svg?label=PyPI%20version)](https://pypi.org/project/scrape-cli/)
 [![Python Versions](https://img.shields.io/pypi/pyversions/scrape-cli.svg)](https://pypi.org/project/scrape-cli/)
 
 # scrape cli
