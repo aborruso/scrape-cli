@@ -15,7 +15,7 @@ It's based on the great and simple [scraping tool](https://github.com/jeroenjans
 
 ## Installation
 
-You can install scrape-cli using pip:
+You can install scrape-cli using several methods:
 
 ### Using pipx (recommended for CLI tools)
 
@@ -23,7 +23,20 @@ You can install scrape-cli using pip:
 pipx install scrape-cli
 ```
 
-Using pip
+### Using uv (modern Python package manager)
+
+```bash
+# Install as a global CLI tool (recommended)
+uv tool install scrape-cli
+
+# Or install with uv pip
+uv pip install scrape-cli
+
+# Or run temporarily without installing
+uvx scrape-cli --help
+```
+
+### Using pip
 
 ```bash
 pip install scrape-cli
