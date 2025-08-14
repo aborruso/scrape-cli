@@ -1,0 +1,6 @@
+lxml
+cssselect
+requests
+build
+twine
+setuptools

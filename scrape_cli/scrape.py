@@ -61,19 +61,13 @@ def is_xpath(expression):
     - Contains predicates with square brackets
     - Contains position functions like last() or position()
     """
-    xpath_patterns = [
-        r'^/',                    # Starts with single or double slash
-        r'::',                    # Contains axis specifier
-        r'\([^)]*\)',            # Contains parentheses
-        r'\[[^\]]*\]',           # Contains square brackets
-        r'last\(\)',             # XPath functions
-        r'position\(\)',
-        r'contains\(',
-        r'text\(\)',
-        r'@',                    # Attribute selector
-    ]
-
-    return any(re.search(pattern, expression) for pattern in xpath_patterns)
+    # Consider XPath only if it starts with /, //, or contains axis (::)
+    expr = expression.strip()
+    if expr.startswith('/') or expr.startswith('//'):
+        return True
+    if '::' in expr:
+        return True
+    return False
 
 def main():
     # Command line argument parser definition

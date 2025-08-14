@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "scrape_cli"
+version = "1.1.9"
+description = "It's a command-line tool to extract HTML elements using an XPath query or CSS3 selector."
+readme = "README.md"
+authors = [
+    {name = "Andrea Borruso", email = "aborruso@gmail.com"},
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+requires-python = ">=3.6"
+dependencies = [
+    "cssselect",
+    "lxml",
+    "requests"
+]
+
+[project.urls]
+Homepage = "https://github.com/aborruso/scrape-cli"
+
+[project.scripts]
+scrape = "scrape_cli.scrape:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["scrape_cli*"]

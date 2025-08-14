@@ -1,3 +1,8 @@
+# 2025-08-14
+
+- [1.1.9] Improved distinction between XPath and CSS selectors: CSS selectors like `a[href*="/talk/"]` are now handled correctly and no longer cause errors.
+- Updated the `is_xpath` function to prevent false positives.
+
 # 2025-06-02
 
 - Added the option `-t` to extract only text content from HTML
