@@ -15,20 +15,26 @@ This document outlines the steps needed to release a new version to PyPI.
    - Document all significant changes.
    - Include the release date.
 
-3. **Install Dependencies**:
+3. **Use the Virtual Environment**:
 
-   - Ensure all dependencies are installed properly:
+   - Use the existing virtual environment in the project:
      ```
-     pip install -r requirements.txt
+     source venv/bin/activate  # Linux/MacOS
+     ```
+   - Verify dependencies are installed properly (they should already be available in the venv):
+     ```
+     pip list | grep -E "(twine|build)"
      ```
 
 ## Build Process
 
-1. **Activate the virtual environment** (if not already activated):
+1. **Activate the virtual environment**:
 
-   ```
+   ```bash
    source venv/bin/activate  # Linux/MacOS
    ```
+
+   Note: The project includes a pre-configured virtual environment with all necessary dependencies (twine, build, etc.) already installed.
 
 2. **Clean previous builds**:
 
