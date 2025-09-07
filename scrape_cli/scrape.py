@@ -60,13 +60,38 @@ def is_xpath(expression):
     - Contains node tests with parentheses
     - Contains predicates with square brackets
     - Contains position functions like last() or position()
+    - Expressions wrapped in parentheses that contain XPath syntax
     """
-    # Consider XPath only if it starts with /, //, or contains axis (::)
     expr = expression.strip()
+
+    # Direct XPath patterns
     if expr.startswith('/') or expr.startswith('//'):
         return True
     if '::' in expr:
         return True
+
+    # Handle expressions wrapped in parentheses
+    if expr.startswith('(') and expr.endswith(')'):
+        # Remove outer parentheses and check inner content
+        inner_expr = expr[1:-1].strip()
+        if inner_expr.startswith('/') or inner_expr.startswith('//'):
+            return True
+        if '::' in inner_expr:
+            return True
+
+    # Additional XPath indicators
+    # Check for XPath-specific patterns that CSS doesn't have
+    if '//' in expr or expr.startswith('/'):
+        return True
+    if re.search(r'@[\w-]+', expr):  # attribute predicates like @class
+        return True
+    if re.search(r'\[\d+\]', expr):  # position predicates like [1]
+        return True
+    if re.search(r'\b(text|node|comment|processing-instruction)\(\)', expr):  # XPath functions
+        return True
+    if re.search(r'\b(ancestor|descendant|following|preceding|parent|child)::', expr):  # XPath axes
+        return True
+
     return False
 
 def main():
