@@ -1,3 +1,8 @@
+# 2025-09-07
+
+- [1.2.0] Fixed XPath detection for expressions wrapped in parentheses: XPath expressions like `(//div[@class='coordinate lat'])[1]` are now correctly recognized as XPath instead of being incorrectly treated as CSS selectors.
+- Enhanced the `is_xpath` function with additional pattern recognition for XPath-specific syntax including attribute predicates, position predicates, and XPath functions.
+
 # 2025-08-14
 
 - [1.1.9] Improved distinction between XPath and CSS selectors: CSS selectors like `a[href*="/talk/"]` are now handled correctly and no longer cause errors.
