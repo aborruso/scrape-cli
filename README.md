@@ -61,7 +61,15 @@ pip install -e .
 
 ### Using the Test HTML File
 
-In the `resources` directory you'll find a `test.html` file that you can use to test various scraping scenarios. Here are some examples:
+In the `resources` directory you'll find a `test.html` file that you can use to test various scraping scenarios.
+
+**Note**: You can also test directly from the URL without cloning the repository:
+
+```bash
+scrape -e "h1" https://raw.githubusercontent.com/aborruso/scrape-cli/refs/heads/master/resources/test.html
+```
+
+Here are some examples:
 
 1. Extract all table data:
 
