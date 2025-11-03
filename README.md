@@ -207,6 +207,60 @@ scrape -te 'h1, h2, h3' resources/test.html
 
 The `-t` option automatically excludes text from `<script>` and `<style>` tags and cleans up whitespace for better readability.
 
+### JSON Output Integration
+
+You can integrate scrape-cli with [xq](https://github.com/kislyuk/yq) (part of yq) to convert HTML output to structured JSON:
+
+```bash
+# Extract and convert to JSON (requires -b for complete HTML)
+scrape -be "a.external-link" resources/test.html | xq .
+```
+
+Output:
+
+```json
+{
+  "html": {
+    "body": {
+      "a": {
+        "@href": "https://example.com",
+        "@class": "external-link",
+        "#text": "Example Link"
+      }
+    }
+  }
+}
+```
+
+Table extraction example:
+
+```bash
+scrape -be "table.data-table td" resources/test.html | xq .
+```
+
+Output:
+
+```json
+{
+  "html": {
+    "body": {
+      "td": [
+        "1",
+        "John Doe",
+        "john@example.com",
+        "2",
+        "Jane Smith",
+        "jane@example.com"
+      ]
+    }
+  }
+}
+```
+
+**Note**: The `-b` flag is mandatory to produce valid HTML with `<html>`, `<head>` and `<body>` tags.
+
+Useful for JSON-based pipelines, APIs, databases, and processing with jq/DuckDB.
+
 Some notes on the commands:
 
 - `-e` to set the query
