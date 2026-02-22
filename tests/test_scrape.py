@@ -76,10 +76,10 @@ def test_xpath_parentheses_extracts_first_match():
 
 
 def test_css_attribute_selector_is_not_misclassified_as_xpath():
-    result = run_scrape(str(TEST_HTML), "-e", "a[href*='/about']", "-t")
+    result = run_scrape(str(TEST_HTML), "-e", ".resource-links a[href*='github.com']", "-t")
 
     assert result.returncode == 0
-    assert result.stdout.strip() == "About Page"
+    assert result.stdout.strip() == "GitHub Repository"
 
 
 def test_check_existence_true_and_false():
