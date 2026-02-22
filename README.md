@@ -1,5 +1,6 @@
 [![PyPI version](https://img.shields.io/pypi/v/scrape-cli.svg?label=PyPI%20version)](https://pypi.org/project/scrape-cli/)
 [![Python Versions](https://img.shields.io/pypi/pyversions/scrape-cli.svg)](https://pypi.org/project/scrape-cli/)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/aborruso/scrape-cli)
 
 # scrape cli
 
