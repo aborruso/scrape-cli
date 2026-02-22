@@ -11,3 +11,4 @@ build/
 *.egg-info/
 __pycache__/
 .aider*
+nanobanana-output/

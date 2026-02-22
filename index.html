@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>scrape-cli — Extract HTML from the command line</title>
+  <meta name="description" content="A command-line tool to extract HTML elements using CSS selectors or XPath queries. Pipe-friendly. Simple. Powerful.">
+  <!-- OpenGraph -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://aborruso.github.io/scrape-cli/">
+  <meta property="og:title" content="scrape-cli — Extract HTML from the command line">
+  <meta property="og:description" content="Extract HTML elements using CSS selectors or XPath queries. Pipe-friendly. Simple. Powerful.">
+  <meta property="og:image" content="https://aborruso.github.io/scrape-cli/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="scrape-cli — Extract HTML from the command line">
+  <meta name="twitter:description" content="Extract HTML elements using CSS selectors or XPath queries. Pipe-friendly. Simple. Powerful.">
+  <meta name="twitter:image" content="https://aborruso.github.io/scrape-cli/og-image.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            bg: '#0a0f1a',
+            surface: '#111827',
+            border: '#1f2d3d',
+            'green-main': '#22c55e',
+            'green-bright': '#4ade80',
+            'green-dim': '#16a34a',
+          },
+          fontFamily: {
+            mono: ['"JetBrains Mono"', 'monospace'],
+            display: ['"Space Mono"', 'monospace'],
+            sans: ['"DM Sans"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    :root {
+      --green: #22c55e;
+      --bg: #0a0f1a;
+      --surface: #111827;
+      --border: #1f2d3d;
+      --text: #e2e8f0;
+      --muted: #64748b;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: #2d3f55; border-radius: 3px; }
+
+    /* Cursor blink */
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+    .cursor {
+      display: inline-block;
+      width: 8px;
+      height: 1em;
+      background: var(--green);
+      animation: blink 1.1s step-end infinite;
+      vertical-align: text-bottom;
+      margin-left: 1px;
+    }
+
+    /* Scanlines overlay */
+    .scanlines { position: relative; }
+    .scanlines::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.12) 3px, rgba(0,0,0,0.12) 4px);
+      pointer-events: none;
+      z-index: 2;
+      border-radius: inherit;
+    }
+
+    /* Green glow */
+    .glow { text-shadow: 0 0 30px rgba(34,197,94,0.4), 0 0 60px rgba(34,197,94,0.15); }
+
+    /* Hero grid pattern */
+    .hero-grid {
+      background-image:
+        linear-gradient(rgba(34,197,94,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(34,197,94,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    /* Hero radial */
+    .hero-radial {
+      background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(34,197,94,0.07) 0%, transparent 70%);
+    }
+
+    /* Tab button */
+    .tab-btn {
+      color: #64748b;
+      border-color: #1f2d3d;
+      background: transparent;
+      transition: all 0.15s ease;
+    }
+    .tab-btn:hover { color: #e2e8f0; border-color: #334155; }
+    .tab-btn.active {
+      background: var(--green);
+      color: #0a0f1a;
+      border-color: var(--green);
+      font-weight: 700;
+    }
+
+    /* Tab content */
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+
+    /* Card */
+    .card {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .card:hover {
+      border-color: rgba(34,197,94,0.35);
+      box-shadow: 0 0 0 1px rgba(34,197,94,0.1), 0 4px 24px rgba(0,0,0,0.3);
+    }
+
+    /* Code block */
+    .code-block {
+      background: #080d14;
+      border: 1px solid #1a2433;
+      border-radius: 6px;
+      overflow-x: auto;
+    }
+
+    /* Terminal window */
+    .terminal {
+      background: #080d14;
+      border: 1px solid #1e2e40;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(34,197,94,0.05);
+    }
+
+    /* Fade-in animation */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up { animation: fadeUp 0.6s ease-out both; }
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.3s; }
+    .delay-4 { animation-delay: 0.45s; }
+    .delay-5 { animation-delay: 0.6s; }
+
+    /* Pulse dot */
+    @keyframes pulse-green {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
+      50% { box-shadow: 0 0 0 5px rgba(34,197,94,0); }
+    }
+    .pulse-dot {
+      width: 8px; height: 8px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: pulse-green 2s ease infinite;
+    }
+
+    /* Nav blur */
+    .nav-blur {
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      background: rgba(10,15,26,0.85);
+    }
+
+    /* Copy feedback */
+    .copied { color: var(--green) !important; border-color: rgba(34,197,94,0.4) !important; }
+
+    /* Output fade */
+    #terminal-output {
+      opacity: 0;
+      transition: opacity 0.6s ease;
+    }
+    #terminal-output.show { opacity: 1; }
+
+    pre { margin: 0; white-space: pre; }
+
+    /* Accessibility: focus-visible ring */
+    :focus-visible {
+      outline: 2px solid var(--green);
+      outline-offset: 3px;
+      border-radius: 4px;
+    }
+
+    /* Skip-to-content link */
+    .skip-link {
+      position: absolute;
+      left: -9999px;
+      top: auto;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+    }
+    .skip-link:focus {
+      position: fixed;
+      left: 16px;
+      top: 16px;
+      width: auto;
+      height: auto;
+      z-index: 9999;
+      padding: 8px 16px;
+      background: var(--green);
+      color: #0a0f1a;
+      font-weight: 700;
+      border-radius: 6px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+    }
+
+    /* Flag pill */
+    .flag-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(34,197,94,0.06);
+      border: 1px solid rgba(34,197,94,0.15);
+      border-radius: 6px;
+      padding: 5px 10px;
+    }
+  </style>
+</head>
+<body>
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<!-- ─── NAV ──────────────────────────────────────────────────────────────── -->
+<nav class="nav-blur sticky top-0 z-50 border-b" aria-label="Main navigation" style="border-color: #1a2433;">
+  <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+    <span class="font-display text-green-main font-bold tracking-tight text-lg">scrape-cli</span>
+    <div class="flex items-center gap-6">
+      <a href="#how-it-works" class="text-sm text-slate-500 hover:text-slate-200 transition-colors hidden sm:inline">How it works</a>
+      <a href="#install" class="text-sm text-slate-500 hover:text-slate-200 transition-colors hidden sm:inline">Install</a>
+      <a href="#examples" class="text-sm text-slate-500 hover:text-slate-200 transition-colors hidden sm:inline">Examples</a>
+      <a href="https://github.com/aborruso/scrape-cli" target="_blank" rel="noopener"
+         class="text-sm font-mono font-bold px-4 py-2 rounded border border-green-main/40 text-green-main hover:bg-green-main/10 transition-colors">
+        GitHub →
+      </a>
+    </div>
+  </div>
+</nav>
+
+<main id="main-content">
+
+<!-- ─── HERO ──────────────────────────────────────────────────────────────── -->
+<section class="hero-grid hero-radial pt-20 pb-16 px-6 relative overflow-hidden">
+  <!-- faint green orb -->
+  <div style="position:absolute;width:600px;height:600px;background:radial-gradient(circle,rgba(34,197,94,0.05) 0%,transparent 70%);top:-200px;left:50%;transform:translateX(-50%);pointer-events:none;"></div>
+
+  <div class="max-w-5xl mx-auto text-center relative z-10">
+    <!-- badge -->
+    <div class="inline-flex items-center gap-2 border rounded-full px-4 py-1.5 text-xs font-mono mb-8 fade-up"
+         style="background:rgba(34,197,94,0.06);border-color:rgba(34,197,94,0.2);color:var(--green);">
+      <span class="pulse-dot"></span>
+      pip install scrape-cli
+    </div>
+
+    <!-- title -->
+    <h1 class="font-display text-5xl sm:text-6xl md:text-7xl font-bold mb-5 fade-up delay-1 glow" style="color:#22c55e;line-height:1.1;">
+      scrape-cli
+    </h1>
+
+    <!-- tagline -->
+    <p class="text-xl sm:text-2xl text-slate-300 mb-3 fade-up delay-2" style="max-width:640px;margin-left:auto;margin-right:auto;">
+      Extract HTML elements from the command line<br class="hidden sm:block"> using CSS or XPath
+    </p>
+    <p class="font-mono text-sm mb-10 fade-up delay-3" style="color:var(--muted);">
+      Pipe-friendly.&nbsp;&nbsp;Simple.&nbsp;&nbsp;Powerful.
+    </p>
+
+    <!-- CTAs -->
+    <div class="flex flex-wrap items-center justify-center gap-3 mb-14 fade-up delay-4">
+      <a href="https://github.com/aborruso/scrape-cli" target="_blank" rel="noopener"
+         class="font-mono font-bold text-sm px-6 py-3 rounded transition-all"
+         style="background:var(--green);color:#0a0f1a;">
+        View on GitHub →
+      </a>
+      <a href="#install"
+         class="font-mono text-sm px-6 py-3 rounded border transition-colors text-slate-300 hover:text-white"
+         style="border-color:#2d3f55;background:rgba(255,255,255,0.02);">
+        Install
+      </a>
+    </div>
+
+    <!-- Terminal window -->
+    <div class="terminal rounded-xl overflow-hidden max-w-3xl mx-auto fade-up delay-5 scanlines text-left">
+      <!-- Title bar -->
+      <div class="flex items-center gap-2 px-4 py-3 border-b" style="background:#0d1520;border-color:#1a2433;">
+        <span style="width:12px;height:12px;border-radius:50%;background:#ef4444;opacity:0.7;display:inline-block;"></span>
+        <span style="width:12px;height:12px;border-radius:50%;background:#eab308;opacity:0.7;display:inline-block;"></span>
+        <span style="width:12px;height:12px;border-radius:50%;background:#22c55e;opacity:0.7;display:inline-block;"></span>
+        <span class="ml-3 text-xs font-mono" style="color:#3d5166;">bash — scrape-cli demo</span>
+      </div>
+      <!-- Terminal body -->
+      <div class="p-6 font-mono text-sm leading-relaxed" style="background:#080d14;min-height:180px;">
+        <div class="flex gap-3">
+          <span style="color:var(--green);user-select:none;">$</span>
+          <div style="flex:1;overflow:hidden;">
+            <span id="typed-cmd" style="color:#cbd5e1;white-space:pre-wrap;word-break:break-all;"></span><span class="cursor" id="typed-cursor"></span>
+            <div id="terminal-output" class="mt-4" style="color:#475569;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── WHY ───────────────────────────────────────────────────────────────── -->
+<section class="px-6 py-20">
+  <div class="max-w-5xl mx-auto">
+    <div class="text-center mb-12">
+      <h2 class="font-display text-3xl font-bold text-white mb-3">Why scrape-cli?</h2>
+      <p style="color:var(--muted);">Built for the terminal. Designed for pipelines.</p>
+    </div>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="card rounded-xl p-6">
+        <div class="text-2xl mb-4">⚡</div>
+        <h3 class="font-display text-sm font-bold mb-2" style="color:var(--green);">Simple</h3>
+        <p class="text-sm leading-relaxed" style="color:#94a3b8;">One flag to extract, one to wrap. No boilerplate. No config files.</p>
+      </div>
+      <div class="card rounded-xl p-6">
+        <div class="text-2xl mb-4">🎯</div>
+        <h3 class="font-display text-sm font-bold mb-2" style="color:var(--green);">CSS &amp; XPath</h3>
+        <p class="text-sm leading-relaxed" style="color:#94a3b8;">Use the selector language you already know. Switch anytime, same result.</p>
+      </div>
+      <div class="card rounded-xl p-6">
+        <div class="text-2xl mb-4">🔗</div>
+        <h3 class="font-display text-sm font-bold mb-2" style="color:var(--green);">Pipeline-friendly</h3>
+        <p class="text-sm leading-relaxed" style="color:#94a3b8;">Reads stdin, writes stdout. Composes naturally with curl, jq, xq.</p>
+      </div>
+      <div class="card rounded-xl p-6">
+        <div class="text-2xl mb-4">🤖</div>
+        <h3 class="font-display text-sm font-bold mb-2" style="color:var(--green);">LLM-ready</h3>
+        <p class="text-sm leading-relaxed" style="color:#94a3b8;"><code class="font-mono" style="color:var(--green);">-t</code> flag extracts clean text, perfect for AI pipelines.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── HOW IT WORKS ──────────────────────────────────────────────────────── -->
+<section id="how-it-works" class="px-6 py-20 border-y" style="background:rgba(8,13,20,0.6);border-color:#1a2433;">
+  <div class="max-w-4xl mx-auto">
+    <div class="text-center mb-12">
+      <h2 class="font-display text-3xl font-bold text-white mb-3">How it works</h2>
+      <p style="color:var(--muted);">CSS selectors and XPath — same result, your choice</p>
+    </div>
+
+    <!-- Syntax selector -->
+    <div class="flex gap-2 mb-6" role="tablist" aria-label="Selector syntax">
+      <button onclick="switchSyntax('css')" id="btn-css" role="tab"
+              aria-selected="true" aria-controls="syntax-panel"
+              class="tab-btn active font-mono text-sm px-5 py-2 rounded border">CSS</button>
+      <button onclick="switchSyntax('xpath')" id="btn-xpath" role="tab"
+              aria-selected="false" aria-controls="syntax-panel"
+              class="tab-btn font-mono text-sm px-5 py-2 rounded border">XPath</button>
+    </div>
+
+    <!-- Example 1 -->
+    <div class="card rounded-xl overflow-hidden mb-4">
+      <div class="px-5 py-3 border-b flex items-center gap-2" style="background:rgba(255,255,255,0.02);border-color:#1a2433;">
+        <span class="font-mono text-xs" style="color:var(--green);">01</span>
+        <span class="text-xs" style="color:#64748b;">Extract sovereign states from Wikipedia</span>
+      </div>
+      <div class="p-5">
+        <div class="tab-pane active" id="ex1-css">
+          <div class="code-block p-4">
+<pre class="font-mono text-sm" style="color:#cbd5e1;"><span style="color:#475569;">curl</span> -L <span style="color:#fbbf24;">'https://en.wikipedia.org/wiki/List_of_sovereign_states'</span> -s \
+| scrape -be <span style="color:#fbbf24;">'table.wikitable &gt; tbody &gt; tr &gt; td &gt; b &gt; a'</span></pre>
+          </div>
+        </div>
+        <div class="tab-pane" id="ex1-xpath">
+          <div class="code-block p-4">
+<pre class="font-mono text-sm" style="color:#cbd5e1;"><span style="color:#475569;">curl</span> -L <span style="color:#fbbf24;">'https://en.wikipedia.org/wiki/List_of_sovereign_states'</span> -s \
+| scrape -be <span style="color:#fbbf24;">"//table[contains(@class, 'wikitable')]/tbody/tr/td/b/a"</span></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Example 2 -->
+    <div class="card rounded-xl overflow-hidden mb-4">
+      <div class="px-5 py-3 border-b flex items-center gap-2" style="background:rgba(255,255,255,0.02);border-color:#1a2433;">
+        <span class="font-mono text-xs" style="color:var(--green);">02</span>
+        <span class="text-xs" style="color:#64748b;">Extract table data</span>
+      </div>
+      <div class="p-5">
+        <div class="tab-pane active css-pane">
+          <div class="code-block p-4">
+<pre class="font-mono text-sm" style="color:#cbd5e1;">scrape -e <span style="color:#fbbf24;">"table.data-table td"</span> resources/test.html</pre>
+          </div>
+        </div>
+        <div class="tab-pane xpath-pane">
+          <div class="code-block p-4">
+<pre class="font-mono text-sm" style="color:#cbd5e1;">scrape -e <span style="color:#fbbf24;">"//table[contains(@class, 'data-table')]//td"</span> resources/test.html</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Example 3 -->
+    <div class="card rounded-xl overflow-hidden mb-8">
+      <div class="px-5 py-3 border-b flex items-center gap-2" style="background:rgba(255,255,255,0.02);border-color:#1a2433;">
+        <span class="font-mono text-xs" style="color:var(--green);">03</span>
+        <span class="text-xs" style="color:#64748b;">Extract link hrefs</span>
+      </div>
+      <div class="p-5">
+        <div class="tab-pane active css-pane">
+          <div class="code-block p-4">
+<pre class="font-mono text-sm" style="color:#cbd5e1;">scrape -e <span style="color:#fbbf24;">"a.external-link"</span> -a href resources/test.html</pre>
+          </div>
+        </div>
+        <div class="tab-pane xpath-pane">
+          <div class="code-block p-4">
+<pre class="font-mono text-sm" style="color:#cbd5e1;">scrape -e <span style="color:#fbbf24;">"//a[contains(@class, 'external-link')]/@href"</span> resources/test.html</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Flags reference -->
+    <div class="rounded-xl p-5" style="background:rgba(8,13,20,0.8);border:1px solid #1a2433;">
+      <p class="font-mono text-xs mb-4 uppercase tracking-widest" style="color:#3d5166;">Key flags</p>
+      <div class="flex flex-wrap gap-3">
+        <div class="flag-pill">
+          <code class="font-mono text-xs font-bold" style="color:var(--green);">-e</code>
+          <span class="text-xs" style="color:#64748b;">CSS selector or XPath expression</span>
+        </div>
+        <div class="flag-pill">
+          <code class="font-mono text-xs font-bold" style="color:var(--green);">-b</code>
+          <span class="text-xs" style="color:#64748b;">Wrap output in html/head/body</span>
+        </div>
+        <div class="flag-pill">
+          <code class="font-mono text-xs font-bold" style="color:var(--green);">-t</code>
+          <span class="text-xs" style="color:#64748b;">Extract plain text only</span>
+        </div>
+        <div class="flag-pill">
+          <code class="font-mono text-xs font-bold" style="color:var(--green);">-a ATTR</code>
+          <span class="text-xs" style="color:#64748b;">Extract attribute value</span>
+        </div>
+        <div class="flag-pill">
+          <code class="font-mono text-xs font-bold" style="color:var(--green);">--check-existence</code>
+          <span class="text-xs" style="color:#64748b;">Exit 0 if found, 1 if not</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── INSTALLATION ──────────────────────────────────────────────────────── -->
+<section id="install" class="px-6 py-20">
+  <div class="max-w-3xl mx-auto">
+    <div class="text-center mb-12">
+      <h2 class="font-display text-3xl font-bold text-white mb-3">Installation</h2>
+      <p style="color:var(--muted);">Get started in seconds</p>
+    </div>
+
+    <!-- Install tabs -->
+    <div class="flex gap-2 mb-4" role="tablist" aria-label="Installation method">
+      <button onclick="switchInstall('uv')" id="ibtn-uv" role="tab"
+              aria-selected="true" aria-controls="install-panel"
+              class="tab-btn active font-mono text-sm px-4 py-2 rounded border">
+        uv <span class="font-mono text-xs" style="opacity:0.6;">(recommended)</span>
+      </button>
+      <button onclick="switchInstall('pipx')" id="ibtn-pipx" role="tab"
+              aria-selected="false" aria-controls="install-panel"
+              class="tab-btn font-mono text-sm px-4 py-2 rounded border">pipx</button>
+      <button onclick="switchInstall('pip')" id="ibtn-pip" role="tab"
+              aria-selected="false" aria-controls="install-panel"
+              class="tab-btn font-mono text-sm px-4 py-2 rounded border">pip</button>
+    </div>
+
+    <div class="terminal rounded-xl overflow-hidden">
+      <!-- title bar -->
+      <div class="flex items-center justify-between px-4 py-3 border-b" style="background:#0d1520;border-color:#1a2433;">
+        <div class="flex items-center gap-2">
+          <span style="width:10px;height:10px;border-radius:50%;background:#ef4444;opacity:0.7;display:inline-block;"></span>
+          <span style="width:10px;height:10px;border-radius:50%;background:#eab308;opacity:0.7;display:inline-block;"></span>
+          <span style="width:10px;height:10px;border-radius:50%;background:#22c55e;opacity:0.7;display:inline-block;"></span>
+        </div>
+        <button id="copy-btn" onclick="copyCmd()" aria-live="polite"
+                class="font-mono text-xs px-3 py-1 rounded border transition-colors" style="color:#64748b;border-color:#2d3f55;">
+          Copy
+        </button>
+      </div>
+      <!-- content -->
+      <div class="p-6" style="background:#080d14;">
+        <div class="tab-pane" id="ipane-pipx">
+          <pre class="font-mono text-lg" style="color:var(--green);"><span style="color:#3d5166;user-select:none;">$ </span>pipx install scrape-cli</pre>
+        </div>
+        <div class="tab-pane active" id="ipane-uv">
+          <pre class="font-mono text-lg" style="color:var(--green);"><span style="color:#3d5166;user-select:none;">$ </span>uv tool install scrape-cli</pre>
+        </div>
+        <div class="tab-pane" id="ipane-pip">
+          <pre class="font-mono text-lg" style="color:var(--green);"><span style="color:#3d5166;user-select:none;">$ </span>pip install scrape-cli</pre>
+        </div>
+      </div>
+    </div>
+    <p class="text-center text-sm mt-4" style="color:#3d5166;">Python ≥ 3.6 &nbsp;·&nbsp; requires: requests, lxml, cssselect</p>
+  </div>
+</section>
+
+<!-- ─── EXAMPLES ─────────────────────────────────────────────────────────── -->
+<section id="examples" class="px-6 py-20 border-y" style="background:rgba(8,13,20,0.6);border-color:#1a2433;">
+  <div class="max-w-5xl mx-auto">
+    <div class="text-center mb-12">
+      <h2 class="font-display text-3xl font-bold text-white mb-3">Practical examples</h2>
+      <p style="color:var(--muted);">Real-world use cases straight from the terminal</p>
+    </div>
+    <div class="grid md:grid-cols-2 gap-4">
+
+      <!-- Card 1: JSON -->
+      <div class="card rounded-xl overflow-hidden">
+        <div class="px-5 py-4 border-b" style="border-color:#1a2433;">
+          <h3 class="font-display text-sm font-bold text-white mb-1">Extract &amp; convert to JSON</h3>
+          <p class="text-xs" style="color:#475569;">Pipe to xq for structured output</p>
+        </div>
+        <div class="p-5 space-y-3">
+          <div class="code-block p-3">
+<pre class="font-mono text-xs" style="color:#cbd5e1;">scrape -be <span style="color:#fbbf24;">"a.external-link"</span> resources/test.html | xq .</pre>
+          </div>
+          <p class="text-xs" style="color:#475569;">
+            Requires <a href="https://github.com/kislyuk/yq" target="_blank" rel="noopener"
+              style="color:#64748b;text-decoration:underline;" class="hover:text-white transition-colors">xq (kislyuk/yq)</a> for XML/HTML-to-JSON conversion.
+          </p>
+          <div class="code-block p-3">
+<pre class="font-mono text-xs" style="color:#475569;">{
+  <span style="color:#7dd3fc;">"html"</span>: {
+    <span style="color:#7dd3fc;">"body"</span>: {
+      <span style="color:#7dd3fc;">"a"</span>: {
+        <span style="color:#7dd3fc;">"@href"</span>: <span style="color:#fbbf24;">"https://example.com"</span>,
+        <span style="color:#7dd3fc;">"@class"</span>: <span style="color:#fbbf24;">"external-link"</span>,
+        <span style="color:#7dd3fc;">"#text"</span>: <span style="color:#fbbf24;">"Example Link"</span>
+      }
+    }
+  }
+}</pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2: LLM text -->
+      <div class="card rounded-xl overflow-hidden">
+        <div class="px-5 py-4 border-b" style="border-color:#1a2433;">
+          <h3 class="font-display text-sm font-bold text-white mb-1">Extract text for LLMs</h3>
+          <p class="text-xs" style="color:#475569;">Clean plain text, no HTML tags</p>
+        </div>
+        <div class="p-5 space-y-3">
+          <div class="code-block p-3">
+<pre class="font-mono text-xs" style="color:#cbd5e1;"><span style="color:#475569;">curl</span> -L <span style="color:#fbbf24;">'https://en.wikipedia.org/wiki/List_of_sovereign_states'</span> -s \
+| scrape -te <span style="color:#fbbf24;">'table.wikitable td'</span></pre>
+          </div>
+          <p class="text-xs leading-relaxed" style="color:#475569;">
+            The <code class="font-mono" style="color:var(--green);">-t</code> flag strips HTML tags, excludes &lt;script&gt; and &lt;style&gt;, and cleans up whitespace — ideal for feeding content into an LLM or text pipeline.
+          </p>
+        </div>
+      </div>
+
+      <!-- Card 3: Check existence -->
+      <div class="card rounded-xl overflow-hidden">
+        <div class="px-5 py-4 border-b" style="border-color:#1a2433;">
+          <h3 class="font-display text-sm font-bold text-white mb-1">Check element existence</h3>
+          <p class="text-xs" style="color:#475569;">Scriptable exit codes for automation</p>
+        </div>
+        <div class="p-5 space-y-4">
+          <div class="code-block p-3">
+<pre class="font-mono text-xs" style="color:#cbd5e1;">scrape -e <span style="color:#fbbf24;">"#main-title"</span> --check-existence resources/test.html</pre>
+          </div>
+          <div class="flex gap-4">
+            <div class="flex items-center gap-2">
+              <span class="font-mono text-xs font-bold w-6 h-6 rounded flex items-center justify-center"
+                    style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);color:var(--green);">0</span>
+              <span class="text-xs" style="color:#64748b;">Element found</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="font-mono text-xs font-bold w-6 h-6 rounded flex items-center justify-center"
+                    style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;">1</span>
+              <span class="text-xs" style="color:#64748b;">Not found</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 4: Pipeline -->
+      <div class="card rounded-xl overflow-hidden">
+        <div class="px-5 py-4 border-b" style="border-color:#1a2433;">
+          <h3 class="font-display text-sm font-bold text-white mb-1">Pipeline with curl</h3>
+          <p class="text-xs" style="color:#475569;">Scrape live web content instantly</p>
+        </div>
+        <div class="p-5 space-y-3">
+          <div class="code-block p-3">
+<pre class="font-mono text-xs" style="color:#cbd5e1;"><span style="color:#475569;">curl</span> -L <span style="color:#fbbf24;">'https://en.wikipedia.org/wiki/List_of_sovereign_states'</span> -s \
+| scrape -be <span style="color:#fbbf24;">'table.wikitable &gt; tbody &gt; tr &gt; td &gt; b &gt; a'</span></pre>
+          </div>
+          <div class="code-block p-3">
+<pre class="font-mono text-xs" style="color:#475569;">&lt;<span style="color:#7dd3fc;">a</span> <span style="color:var(--green);">href</span>=<span style="color:#fbbf24;">"/wiki/Afghanistan"</span>&gt;Afghanistan&lt;/<span style="color:#7dd3fc;">a</span>&gt;
+&lt;<span style="color:#7dd3fc;">a</span> <span style="color:var(--green);">href</span>=<span style="color:#fbbf24;">"/wiki/Albania"</span>&gt;Albania&lt;/<span style="color:#7dd3fc;">a</span>&gt;
+&lt;<span style="color:#7dd3fc;">a</span> <span style="color:var(--green);">href</span>=<span style="color:#fbbf24;">"/wiki/Algeria"</span>&gt;Algeria&lt;/<span style="color:#7dd3fc;">a</span>&gt;
+<span style="color:#2d3f55;">...</span></pre>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ─── FOOTER ────────────────────────────────────────────────────────────── -->
+<footer class="px-6 py-10 border-t" style="border-color:#1a2433;">
+  <div class="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+    <span class="font-display font-bold" style="color:var(--green);">scrape-cli</span>
+    <div class="flex items-center gap-6 text-sm">
+      <a href="https://github.com/aborruso/scrape-cli" target="_blank" rel="noopener"
+         class="transition-colors hover:text-white" style="color:#475569;">GitHub</a>
+      <a href="https://github.com/aborruso/scrape-cli/blob/master/LICENSE" target="_blank" rel="noopener"
+         class="transition-colors hover:text-white" style="color:#475569;">MIT License</a>
+      <a href="https://pypi.org/project/scrape-cli/" target="_blank" rel="noopener"
+         class="transition-colors hover:text-white" style="color:#475569;">PyPI</a>
+    </div>
+    <div class="font-mono text-sm" style="color:#3d5166;">
+      by <a href="https://github.com/aborruso" target="_blank" rel="noopener"
+            class="transition-colors hover:text-white" style="color:#475569;">@aborruso</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ─── Terminal typing animation ────────────────────────────────────────────
+(function () {
+  const CMD = "curl -L 'https://en.wikipedia.org/wiki/List_of_sovereign_states' -s \\\n| scrape -be 'table.wikitable > tbody > tr > td > b > a'";
+
+  const OUTPUT = `<span style="color:#2d3f55;">&lt;html&gt;\n &lt;head&gt;&lt;/head&gt;\n &lt;body&gt;</span>
+  &lt;<span style="color:#7dd3fc;">a</span> <span style="color:#22c55e;">href</span>=<span style="color:#fbbf24;">"/wiki/Afghanistan"</span> <span style="color:#22c55e;">title</span>=<span style="color:#fbbf24;">"Afghanistan"</span>&gt;Afghanistan&lt;/<span style="color:#7dd3fc;">a</span>&gt;
+  &lt;<span style="color:#7dd3fc;">a</span> <span style="color:#22c55e;">href</span>=<span style="color:#fbbf24;">"/wiki/Albania"</span> <span style="color:#22c55e;">title</span>=<span style="color:#fbbf24;">"Albania"</span>&gt;Albania&lt;/<span style="color:#7dd3fc;">a</span>&gt;
+  &lt;<span style="color:#7dd3fc;">a</span> <span style="color:#22c55e;">href</span>=<span style="color:#fbbf24;">"/wiki/Algeria"</span> <span style="color:#22c55e;">title</span>=<span style="color:#fbbf24;">"Algeria"</span>&gt;Algeria&lt;/<span style="color:#7dd3fc;">a</span>&gt;
+  &lt;<span style="color:#7dd3fc;">a</span> <span style="color:#22c55e;">href</span>=<span style="color:#fbbf24;">"/wiki/Andorra"</span> <span style="color:#22c55e;">title</span>=<span style="color:#fbbf24;">"Andorra"</span>&gt;Andorra&lt;/<span style="color:#7dd3fc;">a</span>&gt;
+  <span style="color:#1e2e40;">...</span>
+<span style="color:#2d3f55;"> &lt;/body&gt;\n&lt;/html&gt;</span>`;
+
+  const el = document.getElementById('typed-cmd');
+  const cursor = document.getElementById('typed-cursor');
+  const outEl = document.getElementById('terminal-output');
+
+  function esc(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  let i = 0;
+  function type() {
+    if (i <= CMD.length) {
+      el.innerHTML = esc(CMD.slice(0, i));
+      i++;
+      setTimeout(type, Math.random() * 28 + 18);
+    } else {
+      setTimeout(() => {
+        cursor.style.display = 'none';
+        outEl.innerHTML = OUTPUT;
+        outEl.classList.add('show');
+      }, 400);
+    }
+  }
+  setTimeout(type, 900);
+})();
+
+// ─── CSS / XPath tab switcher ─────────────────────────────────────────────
+var currentSyntax = 'css';
+
+function switchSyntax(tab) {
+  currentSyntax = tab;
+
+  // Update buttons + ARIA
+  var cssbtn = document.getElementById('btn-css');
+  var xpbtn  = document.getElementById('btn-xpath');
+  cssbtn.classList.toggle('active', tab === 'css');
+  xpbtn.classList.toggle('active', tab === 'xpath');
+  cssbtn.setAttribute('aria-selected', tab === 'css' ? 'true' : 'false');
+  xpbtn.setAttribute('aria-selected', tab === 'xpath' ? 'true' : 'false');
+
+  // Example 1 (unique IDs)
+  document.getElementById('ex1-css').classList.toggle('active', tab === 'css');
+  document.getElementById('ex1-xpath').classList.toggle('active', tab === 'xpath');
+
+  // Examples 2 & 3 (class-based)
+  document.querySelectorAll('.css-pane').forEach(function(el) {
+    el.classList.toggle('active', tab === 'css');
+  });
+  document.querySelectorAll('.xpath-pane').forEach(function(el) {
+    el.classList.toggle('active', tab === 'xpath');
+  });
+}
+
+// ─── Install tab switcher ─────────────────────────────────────────────────
+var currentInstall = 'uv';
+
+var installCmds = {
+  pipx: 'pipx install scrape-cli',
+  uv:   'uv tool install scrape-cli',
+  pip:  'pip install scrape-cli'
+};
+
+function switchInstall(tab) {
+  currentInstall = tab;
+  ['pipx', 'uv', 'pip'].forEach(function(t) {
+    var btn = document.getElementById('ibtn-' + t);
+    btn.classList.toggle('active', t === tab);
+    btn.setAttribute('aria-selected', t === tab ? 'true' : 'false');
+    document.getElementById('ipane-' + t).classList.toggle('active', t === tab);
+  });
+}
+
+function copyCmd() {
+  var text = installCmds[currentInstall];
+  navigator.clipboard.writeText(text).then(function() {
+    var btn = document.getElementById('copy-btn');
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(function() {
+      btn.textContent = 'Copy';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+</script>
+</body>
+</html>
