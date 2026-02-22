@@ -5,6 +5,8 @@
 - Remove `setup.py` (superseded by `pyproject.toml`)
 - Add `timeout=30` to `requests.get()` in `scrape.py`
 - Bump `requires-python` to `>=3.8` in `pyproject.toml`
+- Enrich `resources/test.html`: countries table, 6 sections, data attributes, ordered list
+- Create `manual.html`: 10 real examples (CSS + XPath + pipeline), all outputs verified
 
 - Created `index.html`: modern standalone landing page (HTML + Tailwind CDN + vanilla JS)
   - Hero with terminal typing animation

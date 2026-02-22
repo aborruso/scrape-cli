@@ -17,6 +17,16 @@ Keep this managed block so 'openspec update' can refresh the instructions.
 
 <!-- OPENSPEC:END -->
 
+## Testing
+
+Use `uv venv` to create the virtual environment and run tests:
+
+```bash
+uv venv && source .venv/bin/activate
+uv pip install -e ".[dev]"
+pytest tests/
+```
+
 ## Safety Rule: Stop Tracking an Already Tracked Item
 
 When the user asks to stop tracking an item that is already tracked by Git, follow this exact procedure.

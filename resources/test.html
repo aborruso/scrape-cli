@@ -1,111 +1,155 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Test Page for Scrape CLI</title>
+  <meta charset="UTF-8">
+  <title>scrape-cli Test Page</title>
+  <style>
+    body { font-family: sans-serif; line-height: 1.6; max-width: 860px; margin: 0 auto; padding: 2rem; color: #222; }
+    h1 { font-size: 2rem; }
+    h2 { font-size: 1.3rem; margin-top: 2rem; border-bottom: 1px solid #ddd; padding-bottom: 0.25rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+    th, td { border: 1px solid #ccc; padding: 0.5rem 1rem; text-align: left; }
+    th { background: #f5f5f5; }
+    code { background: #f0f0f0; padding: 0.1rem 0.3rem; border-radius: 3px; font-family: monospace; }
+    nav a { margin-right: 1rem; }
+  </style>
 </head>
 <body>
-    <h1 id="main-title">Welcome to the Test Page</h1>
-    
-    <!-- Test table -->
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Email</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>1</td>
-                <td>John Doe</td>
-                <td>john@example.com</td>
-            </tr>
-            <tr>
-                <td>2</td>
-                <td>Jane Smith</td>
-                <td>jane@example.com</td>
-            </tr>
-        </tbody>
-    </table>
 
-    <!-- Test list -->
-    <ul class="items-list">
-        <li>First item</li>
-        <li>Second item</li>
-        <li>Third item</li>
-    </ul>
+<nav class="site-nav">
+  <a href="/" class="nav-link">Home</a>
+  <a href="/docs" class="nav-link">Docs</a>
+  <a href="/contact" class="nav-link">Contact</a>
+</nav>
 
-    <!-- Test links -->
-    <div class="links-section">
-        <a href="https://example.com" class="external-link">Example Link</a>
-        <a href="/about" class="internal-link">About Page</a>
-    </div>
+<h1 id="main-title">Welcome to the Test Page</h1>
+<p class="intro">This page is used to test <strong>scrape-cli</strong>, a command-line tool for extracting HTML elements using CSS selectors and XPath. It contains a variety of elements suitable for scraping practice.</p>
 
-    <!-- Test forms -->
-    <form id="contact-form">
-        <input type="text" name="name" placeholder="Your name">
-        <input type="email" name="email" placeholder="Your email">
-        <textarea name="message" placeholder="Your message"></textarea>
-        <button type="submit">Send</button>
-    </form>
+<!-- Section: Countries -->
+<section id="countries">
+  <h2 class="section-title">European Countries</h2>
+  <p>A list of European countries with their capitals and approximate population (millions).</p>
+  <table class="data-table">
+    <thead>
+      <tr><th>Country</th><th>Capital</th><th>Population (M)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Italy</td><td>Rome</td><td>59</td></tr>
+      <tr><td>France</td><td>Paris</td><td>68</td></tr>
+      <tr><td>Germany</td><td>Berlin</td><td>84</td></tr>
+      <tr><td>Spain</td><td>Madrid</td><td>47</td></tr>
+    </tbody>
+  </table>
+</section>
 
-    <!-- Test hidden elements -->
-    <div style="display:none;" class="hidden-content">
-        <p>This is hidden content</p>
-    </div>
+<!-- Section: Installation steps -->
+<section id="steps">
+  <h2 class="section-title">Installation Steps</h2>
+  <ol class="steps-list">
+    <li>Install Python 3.8 or higher</li>
+    <li>Run: <code>pip install scrape-cli</code></li>
+    <li>Verify with: <code>scrape --version</code></li>
+    <li>Start scraping!</li>
+  </ol>
+</section>
 
-    <!-- Test attributes -->
-    <div data-test="example" class="attributes-test">
-        <span data-value="123">Test Value</span>
-    </div>
+<!-- Section: Topics -->
+<section id="topics">
+  <h2 class="section-title">Topics</h2>
+  <ul class="items-list">
+    <li>First item</li>
+    <li>Second item</li>
+    <li>Third item</li>
+  </ul>
+</section>
 
-    <!-- Test nested elements -->
-    <div class="nested-elements">
-        <div>
-            <p>Nested paragraph 1</p>
-            <p>Nested paragraph 2</p>
-        </div>
-    </div>
+<!-- Section: External resources -->
+<section id="resources">
+  <h2 class="section-title">External Resources</h2>
+  <ul class="resource-links">
+    <li><a href="https://example.com" class="external-link">Example Link</a></li>
+    <li><a href="https://github.com/aborruso/scrape-cli">GitHub Repository</a></li>
+    <li><a href="https://pypi.org/project/scrape-cli/">PyPI Package</a></li>
+    <li><a href="/about" class="internal-link">About Page</a></li>
+    <li><a href="/docs">Documentation</a></li>
+  </ul>
+</section>
 
-    <!-- Test special characters -->
-    <div class="special-chars">
-        <p>Test &amp; special characters: &lt;&gt;&quot;&#39;</p>
-    </div>
+<!-- Section: Data attributes -->
+<section id="attributes">
+  <h2 class="section-title">Data Attributes</h2>
+  <div data-test="example" class="attributes-test">
+    <span data-value="123" class="data-item">Alpha</span>
+    <span data-value="456" class="data-item">Beta</span>
+    <span data-value="789" class="data-item">Gamma</span>
+  </div>
+</section>
 
-    <!-- Test empty elements -->
-    <div class="empty-elements">
-        <p></p>
-        <span></span>
-    </div>
+<!-- Section: International text (encoding) -->
+<section id="encoding">
+  <h2 class="section-title">International Text</h2>
+  <p class="intl-text">Café, naïve, résumé — Perché non è così? — über alles</p>
+</section>
 
-    <!-- Test multiple classes -->
-    <div class="class1 class2 class3">
-        <p>Element with multiple classes</p>
-    </div>
+<!-- Hidden content -->
+<div style="display:none;" class="hidden-content">
+  <p>This is hidden content</p>
+</div>
 
-    <!-- Test specific attributes -->
-    <div class="specific-attributes">
-        <input type="checkbox" checked disabled>
-        <img src="image.jpg" alt="Test image" width="300" height="200">
-    </div>
+<!-- Nested elements -->
+<div class="nested-elements">
+  <div>
+    <p>Nested paragraph 1</p>
+    <p>Nested paragraph 2</p>
+  </div>
+</div>
 
-    <!-- Test dynamic content -->
-    <div id="dynamic-content">
-        <script>
-            document.getElementById('dynamic-content').innerHTML = '<p>Dynamic content loaded</p>';
-        </script>
-    </div>
+<!-- Multiple classes -->
+<div class="class1 class2 class3">
+  <p>Element with multiple classes</p>
+</div>
 
-    <!-- Test complex whitespace -->
-    <div class="whitespace-test">
-        <p>
-            This text has
-            multiple    spaces
-            and
-            line breaks
-        </p>
-    </div>
+<!-- Specific attributes -->
+<div class="specific-attributes">
+  <input type="checkbox" checked disabled>
+  <img src="image.jpg" alt="Test image" width="300" height="200">
+</div>
+
+<!-- Contact form -->
+<form id="contact-form">
+  <input type="text" name="name" placeholder="Your name">
+  <input type="email" name="email" placeholder="Your email">
+  <textarea name="message" placeholder="Your message"></textarea>
+  <button type="submit">Send</button>
+</form>
+
+<!-- Dynamic content — script block (to test -t exclusion) -->
+<div id="dynamic-content">
+  <script>
+    document.getElementById('dynamic-content').innerHTML = '<p>Dynamic content loaded</p>';
+  </script>
+</div>
+
+<!-- Empty elements -->
+<div class="empty-elements">
+  <p></p>
+  <span></span>
+</div>
+
+<!-- Whitespace test -->
+<div class="whitespace-test">
+  <p>
+    This text has
+    multiple    spaces
+    and
+    line breaks
+  </p>
+</div>
+
+<!-- Special characters -->
+<div class="special-chars">
+  <p>Test &amp; special characters: &lt;&gt;&quot;&#39;</p>
+</div>
+
 </body>
 </html>

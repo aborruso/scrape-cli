@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>scrape-cli — Manual &amp; Examples</title>
+  <meta name="description" content="Practical scrape-cli examples using CSS selectors and XPath queries. Learn how to extract HTML elements from the command line.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            bg: '#0a0f1a',
+            surface: '#111827',
+            border: '#1f2d3d',
+            'green-main': '#22c55e',
+            'green-bright': '#4ade80',
+            'green-dim': '#16a34a',
+          },
+          fontFamily: {
+            mono: ['"JetBrains Mono"', 'monospace'],
+            display: ['"Space Mono"', 'monospace'],
+            sans: ['"DM Sans"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    :root {
+      --green: #22c55e;
+      --bg: #0a0f1a;
+      --surface: #111827;
+      --border: #1f2d3d;
+      --text: #e2e8f0;
+      --muted: #64748b;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: #2d3f55; border-radius: 3px; }
+    .glow { text-shadow: 0 0 30px rgba(34,197,94,0.4), 0 0 60px rgba(34,197,94,0.15); }
+    .nav-blur {
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      background: rgba(10,15,26,0.85);
+    }
+    .card {
+      border: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .code-block {
+      background: #080d14;
+      border: 1px solid #1a2433;
+      border-radius: 6px;
+      overflow-x: auto;
+    }
+    pre { margin: 0; white-space: pre; }
+    .badge-css {
+      background: rgba(59,130,246,0.1);
+      border: 1px solid rgba(59,130,246,0.3);
+      color: #93c5fd;
+    }
+    .badge-xpath {
+      background: rgba(168,85,247,0.1);
+      border: 1px solid rgba(168,85,247,0.3);
+      color: #d8b4fe;
+    }
+    .badge-pipe {
+      background: rgba(251,146,60,0.1);
+      border: 1px solid rgba(251,146,60,0.3);
+      color: #fdba74;
+    }
+    .section-label {
+      font-size: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .copied { color: var(--green) !important; border-color: rgba(34,197,94,0.4) !important; }
+    :focus-visible { outline: 2px solid var(--green); outline-offset: 3px; border-radius: 4px; }
+    .skip-link {
+      position: absolute; left: -9999px; top: auto; width: 1px; height: 1px; overflow: hidden;
+    }
+    .skip-link:focus {
+      position: fixed; left: 16px; top: 16px; width: auto; height: auto; z-index: 9999;
+      padding: 8px 16px; background: var(--green); color: #0a0f1a; font-weight: 700;
+      border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 14px;
+    }
+    .hero-grid {
+      background-image:
+        linear-gradient(rgba(34,197,94,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(34,197,94,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+    .hero-radial {
+      background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(34,197,94,0.07) 0%, transparent 70%);
+    }
+  </style>
+</head>
+<body>
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<!-- NAV -->
+<nav class="nav-blur sticky top-0 z-50 border-b" aria-label="Main navigation" style="border-color: #1a2433;">
+  <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+    <a href="index.html" class="font-display text-green-main font-bold tracking-tight text-lg">scrape-cli</a>
+    <div class="flex items-center gap-6">
+      <a href="index.html#how-it-works" class="text-sm text-slate-500 hover:text-slate-200 transition-colors hidden sm:inline">How it works</a>
+      <a href="index.html#install" class="text-sm text-slate-500 hover:text-slate-200 transition-colors hidden sm:inline">Install</a>
+      <span class="text-sm font-mono font-bold" style="color:var(--green);">Manual</span>
+      <a href="https://github.com/aborruso/scrape-cli" target="_blank" rel="noopener"
+         class="text-sm font-mono font-bold px-4 py-2 rounded border border-green-main/40 text-green-main hover:bg-green-main/10 transition-colors">
+        GitHub →
+      </a>
+    </div>
+  </div>
+</nav>
+
+<main id="main-content">
+
+<!-- HERO -->
+<section class="hero-grid hero-radial pt-16 pb-12 px-6 relative overflow-hidden">
+  <div style="position:absolute;width:600px;height:600px;background:radial-gradient(circle,rgba(34,197,94,0.05) 0%,transparent 70%);top:-200px;left:50%;transform:translateX(-50%);pointer-events:none;"></div>
+  <div class="max-w-4xl mx-auto text-center relative z-10">
+    <h1 class="font-display text-4xl sm:text-5xl font-bold mb-4 glow" style="color:#22c55e;line-height:1.15;">
+      Manual &amp; Examples
+    </h1>
+    <p class="text-lg text-slate-300 mb-3" style="max-width:600px;margin-left:auto;margin-right:auto;">
+      Ten real examples using CSS selectors and XPath — all tested against a live HTML page.
+    </p>
+    <p class="font-mono text-sm mb-8" style="color:var(--muted);">
+      Each example shows the objective, the exact command, and the expected output.
+    </p>
+
+    <!-- Test page reference -->
+    <div class="inline-block rounded-xl p-4 text-left" style="background:rgba(8,13,20,0.8);border:1px solid #1a2433;max-width:640px;width:100%;">
+      <p class="section-label mb-2">Input page used in all examples</p>
+      <div class="code-block px-4 py-3 flex items-center justify-between gap-4">
+        <code class="font-mono text-sm" style="color:var(--green);">resources/test.html</code>
+        <a href="resources/test.html" target="_blank" rel="noopener"
+           class="text-xs font-mono px-3 py-1 rounded border transition-colors flex-shrink-0"
+           style="color:#64748b;border-color:#2d3f55;">View page →</a>
+      </div>
+      <p class="text-xs mt-2" style="color:#3d5166;">
+        Also available at:
+        <code class="font-mono" style="color:#475569;">https://aborruso.github.io/scrape-cli/resources/test.html</code>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- LEGEND -->
+<div class="max-w-5xl mx-auto px-6 pb-4">
+  <div class="flex flex-wrap gap-3 text-xs font-mono">
+    <span class="badge-css px-2 py-1 rounded">CSS selector</span>
+    <span class="badge-xpath px-2 py-1 rounded">XPath</span>
+    <span class="badge-pipe px-2 py-1 rounded">pipeline</span>
+  </div>
+</div>
+
+<!-- EXAMPLES -->
+<section class="px-6 pb-24">
+  <div class="max-w-5xl mx-auto space-y-6">
+
+    <!-- 01 -->
+    <div class="card rounded-xl overflow-hidden">
+      <div class="px-5 py-3 border-b flex items-center gap-3" style="background:rgba(255,255,255,0.02);border-color:#1a2433;">
+        <span class="font-mono text-xs font-bold" style="color:var(--green);">01</span>
+        <span class="badge-css text-xs px-2 py-0.5 rounded font-mono">CSS</span>
+        <span class="font-semibold text-sm text-white">Extract the page title</span>
+      </div>
+      <div class="p-5 grid md:grid-cols-3 gap-4">
+        <div>
+          <p class="section-label mb-2">Objective</p>
+          <p class="text-sm" style="color:#94a3b8;">Get the main heading text using the <code class="font-mono text-xs" style="color:var(--green);">h1</code> tag selector and <code class="font-mono text-xs" style="color:var(--green);">-t</code> for plain text output.</p>
+        </div>
+        <div>
+          <p class="section-label mb-2">Command</p>
+          <div class="code-block p-3 flex items-start justify-between gap-2">
+            <pre class="font-mono text-xs" style="color:#cbd5e1;">scrape -e <span style="color:#fbbf24;">"h1"</span> -t \
+  resources/test.html</pre>
+            <button onclick="copyCode(this,'scrape -e \"h1\" -t resources/test.html')" class="font-mono text-xs px-2 py-1 rounded border flex-shrink-0" style="color:#64748b;border-color:#2d3f55;">Copy</button>
+          </div>
+        </div>
+        <div>
+          <p class="section-label mb-2">Output</p>
+          <div class="code-block p-3">
+            <pre class="font-mono text-xs" style="color:#4ade80;">Welcome to the Test Page</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 02 -->
+    <div class="card rounded-xl overflow-hidden">
+      <div class="px-5 py-3 border-b flex items-center gap-3" style="background:rgba(255,255,255,0.02);border-color:#1a2433;">
+        <span class="font-mono text-xs font-bold" style="color:var(--green);">02</span>
+        <span class="badge-xpath text-xs px-2 py-0.5 rounded font-mono">XPath</span>
+        <span class="font-semibold text-sm text-white">Extract all section headings</span>
+      </div>
+      <div class="p-5 grid md:grid-cols-3 gap-4">
+        <div>
+          <p class="section-label mb-2">Objective</p>
+          <p class="text-sm" style="color:#94a3b8;">List all <code class="font-mono text-xs" style="color:var(--green);">h2</code> elements with a specific class, using an XPath attribute predicate.</p>
+        </div>
+        <div>
+          <p class="section-label mb-2">Command</p>
+          <div class="code-block p-3 flex items-start justify-between gap-2">
+            <pre class="font-mono text-xs" style="color:#cbd5e1;">scrape \
+  -e <span style="color:#fbbf24;">"//h2[@class='section-title']"</span> \
+  -t resources/test.html</pre>
+            <button onclick="copyCode(this,&quot;scrape -e &quot;//h2[@class='section-title']&quot; -t resources/test.html&quot;)" class="font-mono text-xs px-2 py-1 rounded border flex-shrink-0" style="color:#64748b;border-color:#2d3f55;">Copy</button>
+          </div>
+        </div>
+        <div>
+          <p class="section-label mb-2">Output</p>
+          <div class="code-block p-3">
+            <pre class="font-mono text-xs" style="color:#4ade80;">European Countries
+Installation Steps
+Topics
+External Resources
+Data Attributes
+International Text</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 03 -->
+    <div class="card rounded-xl overflow-hidden">
+      <div class="px-5 py-3 border-b flex items-center gap-3" style="background:rgba(255,255,255,0.02);border-color:#1a2433;">
+        <span class="font-mono text-xs font-bold" style="color:var(--green);">03</span>
+        <span class="badge-css text-xs px-2 py-0.5 rounded font-mono">CSS</span>
+        <span class="font-semibold text-sm text-white">Extract all external link URLs</span>
+      </div>
+      <div class="p-5 grid md:grid-cols-3 gap-4">
+        <div>
+          <p class="section-label mb-2">Objective</p>
+          <p class="text-sm" style="color:#94a3b8;">Get the <code class="font-mono text-xs" style="color:var(--green);">href</code> of every link pointing to an external HTTPS URL, using the <code class="font-mono text-xs" style="color:var(--green);">-a</code> flag to extract attributes.</p>
+        </div>
+        <div>
+          <p class="section-label mb-2">Command</p>
+          <div class="code-block p-3 flex items-start justify-between gap-2">
+            <pre class="font-mono text-xs" style="color:#cbd5e1;">scrape \
+  -e <span style="color:#fbbf24;">"a[href^='https']"</span> \
+  -a href \
+  resources/test.html</pre>
+            <button onclick="copyCode(this,&quot;scrape -e &quot;a[href^='https']&quot; -a href resources/test.html&quot;)" class="font-mono text-xs px-2 py-1 rounded border flex-shrink-0" style="color:#64748b;border-color:#2d3f55;">Copy</button>
+          </div>
+        </div>
+        <div>
+          <p class="section-label mb-2">Output</p>
+          <div class="code-block p-3">
+            <pre class="font-mono text-xs" style="color:#4ade80;">https://example.com
+https://github.com/aborruso/scrape-cli
+https://pypi.org/project/scrape-cli/</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 04 -->
+    <div class="card rounded-xl overflow-hidden">
+      <div class="px-5 py-3 border-b flex items-center gap-3" style="background:rgba(255,255,255,0.02);border-color:#1a2433;">
+        <span class="font-mono text-xs font-bold" style="color:var(--green);">04</span>
+        <span class="badge-xpath text-xs px-2 py-0.5 rounded font-mono">XPath</span>
+        <span class="font-semibold text-sm text-white">Extract a specific list item by position</span>
+      </div>
+      <div class="p-5 grid md:grid-cols-3 gap-4">
+        <div>
+          <p class="section-label mb-2">Objective</p>
+          <p class="text-sm" style="color:#94a3b8;">Get the second <code class="font-mono text-xs" style="color:var(--green);">&lt;li&gt;</code> from a list using an XPath positional predicate wrapped in parentheses.</p>
+        </div>
+        <div>
+          <p class="section-label mb-2">Command</p>
+          <div class="code-block p-3 flex items-start justify-between gap-2">
+            <pre class="font-mono text-xs" style="color:#cbd5e1;">scrape \
+  -e <span style="color:#fbbf24;">"(//ul[@class='items-list']/li)[2]"</span> \
+  -t resources/test.html</pre>
+            <button onclick="copyCode(this,&quot;scrape -e &quot;(//ul[@class='items-list']/li)[2]&quot; -t resources/test.html&quot;)" class="font-mono text-xs px-2 py-1 rounded border flex-shrink-0" style="color:#64748b;border-color:#2d3f55;">Copy</button>
+          </div>
+        </div>
+        <div>
+          <p class="section-label mb-2">Output</p>
+          <div class="code-block p-3">
+            <pre class="font-mono text-xs" style="color:#4ade80;">Second item</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 05 -->
+    <div class="card rounded-xl overflow-hidden">
+      <div class="px-5 py-3 border-b flex items-center gap-3" style="background:rgba(255,255,255,0.02);border-color:#1a2433;">
+        <span class="font-mono text-xs font-bold" style="color:var(--green);">05</span>
+        <span class="badge-xpath text-xs px-2 py-0.5 rounded font-mono">XPath</span>
+        <span class="font-semibold text-sm text-white">Extract a table column</span>
+      </div>
+      <div class="p-5 grid md:grid-cols-3 gap-4">
+        <div>
+          <p class="section-label mb-2">Objective</p>
+          <p class="text-sm" style="color:#94a3b8;">Pull all values from the first column of a table by combining an XPath class predicate with a column index.</p>
+        </div>
+        <div>
+          <p class="section-label mb-2">Command</p>
+          <div class="code-block p-3 flex items-start justify-between gap-2">
+            <pre class="font-mono text-xs" style="color:#cbd5e1;">scrape \
+  -e <span style="color:#fbbf24;">"//table[@class='data-table']</span>
+<span style="color:#fbbf24;">     /tbody/tr/td[1]"</span> \
+  -t resources/test.html</pre>
+            <button onclick="copyCode(this,&quot;scrape -e &quot;//table[@class='data-table']/tbody/tr/td[1]&quot; -t resources/test.html&quot;)" class="font-mono text-xs px-2 py-1 rounded border flex-shrink-0" style="color:#64748b;border-color:#2d3f55;">Copy</button>
+          </div>
+        </div>
+        <div>
+          <p class="section-label mb-2">Output</p>
+          <div class="code-block p-3">
+            <pre class="font-mono text-xs" style="color:#4ade80;">Italy
+France
+Germany
+Spain</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 06 -->
+    <div class="card rounded-xl overflow-hidden">
+      <div class="px-5 py-3 border-b flex items-center gap-3" style="background:rgba(255,255,255,0.02);border-color:#1a2433;">
+        <span class="font-mono text-xs font-bold" style="color:var(--green);">06</span>
+        <span class="badge-xpath text-xs px-2 py-0.5 rounded font-mono">XPath</span>
+        <span class="font-semibold text-sm text-white">Extract custom data attributes</span>
+      </div>
+      <div class="p-5 grid md:grid-cols-3 gap-4">
+        <div>
+          <p class="section-label mb-2">Objective</p>
+          <p class="text-sm" style="color:#94a3b8;">Read arbitrary <code class="font-mono text-xs" style="color:var(--green);">data-*</code> attributes using <code class="font-mono text-xs" style="color:var(--green);">-a</code>. The <code class="font-mono text-xs" style="color:var(--green);">-e</code> selects the elements; <code class="font-mono text-xs" style="color:var(--green);">-a</code> names the attribute to extract.</p>
+        </div>
+        <div>
+          <p class="section-label mb-2">Command</p>
+          <div class="code-block p-3 flex items-start justify-between gap-2">
+            <pre class="font-mono text-xs" style="color:#cbd5e1;">scrape \
+  -e <span style="color:#fbbf24;">"//span[@class='data-item']"</span> \
+  -a data-value \
+  resources/test.html</pre>
+            <button onclick="copyCode(this,&quot;scrape -e &quot;//span[@class='data-item']&quot; -a data-value resources/test.html&quot;)" class="font-mono text-xs px-2 py-1 rounded border flex-shrink-0" style="color:#64748b;border-color:#2d3f55;">Copy</button>
+          </div>
+        </div>
+        <div>
+          <p class="section-label mb-2">Output</p>
+          <div class="code-block p-3">
+            <pre class="font-mono text-xs" style="color:#4ade80;">123
+456
+789</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 07 -->
+    <div class="card rounded-xl overflow-hidden">
+      <div class="px-5 py-3 border-b flex items-center gap-3" style="background:rgba(255,255,255,0.02);border-color:#1a2433;">
+        <span class="font-mono text-xs font-bold" style="color:var(--green);">07</span>
+        <span class="badge-css text-xs px-2 py-0.5 rounded font-mono">CSS</span>
+        <span class="font-semibold text-sm text-white">Extract all visible text (LLM-ready)</span>
+      </div>
+      <div class="p-5 grid md:grid-cols-3 gap-4">
+        <div>
+          <p class="section-label mb-2">Objective</p>
+          <p class="text-sm" style="color:#94a3b8;">Extract all body text — no tags, no <code class="font-mono text-xs" style="color:var(--green);">&lt;script&gt;</code>, no <code class="font-mono text-xs" style="color:var(--green);">&lt;style&gt;</code> — in one command. Ideal for feeding pages into an LLM.</p>
+        </div>
+        <div>
+          <p class="section-label mb-2">Command</p>
+          <div class="code-block p-3 flex items-start justify-between gap-2">
+            <pre class="font-mono text-xs" style="color:#cbd5e1;">scrape -t \
+  resources/test.html</pre>
+            <button onclick="copyCode(this,'scrape -t resources/test.html')" class="font-mono text-xs px-2 py-1 rounded border flex-shrink-0" style="color:#64748b;border-color:#2d3f55;">Copy</button>
+          </div>
+        </div>
+        <div>
+          <p class="section-label mb-2">Output (excerpt)</p>
+          <div class="code-block p-3">
+            <pre class="font-mono text-xs" style="color:#4ade80;">Home
+Docs
+Contact
+Welcome to the Test Page
+European Countries
+Italy Rome 59
+...
+<span style="color:#2d3f55;">(script content excluded)</span></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 08 -->
+    <div class="card rounded-xl overflow-hidden">
+      <div class="px-5 py-3 border-b flex items-center gap-3" style="background:rgba(255,255,255,0.02);border-color:#1a2433;">
+        <span class="font-mono text-xs font-bold" style="color:var(--green);">08</span>
+        <span class="badge-css text-xs px-2 py-0.5 rounded font-mono">CSS</span>
+        <span class="font-semibold text-sm text-white">Check element existence (for scripting)</span>
+      </div>
+      <div class="p-5 grid md:grid-cols-3 gap-4">
+        <div>
+          <p class="section-label mb-2">Objective</p>
+          <p class="text-sm" style="color:#94a3b8;"><code class="font-mono text-xs" style="color:var(--green);">-x</code> returns exit code <code class="font-mono text-xs" style="color:var(--green);">0</code> if the element is found, <code class="font-mono text-xs" style="color:var(--green);">1</code> if not — perfect for shell conditionals and CI checks.</p>
+        </div>
+        <div>
+          <p class="section-label mb-2">Command</p>
+          <div class="code-block p-3 flex items-start justify-between gap-2">
+            <pre class="font-mono text-xs" style="color:#cbd5e1;">scrape -e <span style="color:#fbbf24;">"#main-title"</span> -x \
+  resources/test.html \
+  &amp;&amp; echo "found" \
+  || echo "not found"</pre>
+            <button onclick="copyCode(this,'scrape -e \"#main-title\" -x resources/test.html && echo \"found\" || echo \"not found\"')" class="font-mono text-xs px-2 py-1 rounded border flex-shrink-0" style="color:#64748b;border-color:#2d3f55;">Copy</button>
+          </div>
+        </div>
+        <div>
+          <p class="section-label mb-2">Output</p>
+          <div class="code-block p-3">
+            <pre class="font-mono text-xs" style="color:#4ade80;">found</pre>
+          </div>
+          <div class="flex gap-4 mt-3">
+            <div class="flex items-center gap-2">
+              <span class="font-mono text-xs font-bold w-6 h-6 rounded flex items-center justify-center"
+                    style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);color:var(--green);">0</span>
+              <span class="text-xs" style="color:#64748b;">Element found</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="font-mono text-xs font-bold w-6 h-6 rounded flex items-center justify-center"
+                    style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;">1</span>
+              <span class="text-xs" style="color:#64748b;">Not found</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 09 -->
+    <div class="card rounded-xl overflow-hidden">
+      <div class="px-5 py-3 border-b flex items-center gap-3" style="background:rgba(255,255,255,0.02);border-color:#1a2433;">
+        <span class="font-mono text-xs font-bold" style="color:var(--green);">09</span>
+        <span class="badge-xpath text-xs px-2 py-0.5 rounded font-mono">XPath</span>
+        <span class="font-semibold text-sm text-white">Wrap output in a full HTML document</span>
+      </div>
+      <div class="p-5 grid md:grid-cols-3 gap-4">
+        <div>
+          <p class="section-label mb-2">Objective</p>
+          <p class="text-sm" style="color:#94a3b8;">Extract an element and wrap it in a valid <code class="font-mono text-xs" style="color:var(--green);">&lt;html&gt;&lt;body&gt;</code> document using <code class="font-mono text-xs" style="color:var(--green);">-b</code>. Useful for piping into other HTML tools.</p>
+        </div>
+        <div>
+          <p class="section-label mb-2">Command</p>
+          <div class="code-block p-3 flex items-start justify-between gap-2">
+            <pre class="font-mono text-xs" style="color:#cbd5e1;">scrape \
+  -e <span style="color:#fbbf24;">"//section[@id='countries']//table"</span> \
+  -b resources/test.html</pre>
+            <button onclick="copyCode(this,&quot;scrape -e &quot;//section[@id='countries']//table&quot; -b resources/test.html&quot;)" class="font-mono text-xs px-2 py-1 rounded border flex-shrink-0" style="color:#64748b;border-color:#2d3f55;">Copy</button>
+          </div>
+        </div>
+        <div>
+          <p class="section-label mb-2">Output</p>
+          <div class="code-block p-3">
+            <pre class="font-mono text-xs" style="color:#4ade80;">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;body&gt;
+&lt;table class="data-table"&gt;
+  ...
+&lt;/table&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 10 -->
+    <div class="card rounded-xl overflow-hidden">
+      <div class="px-5 py-3 border-b flex items-center gap-3" style="background:rgba(255,255,255,0.02);border-color:#1a2433;">
+        <span class="font-mono text-xs font-bold" style="color:var(--green);">10</span>
+        <span class="badge-pipe text-xs px-2 py-0.5 rounded font-mono">pipeline</span>
+        <span class="font-semibold text-sm text-white">Fetch a live URL and extract data</span>
+      </div>
+      <div class="p-5 grid md:grid-cols-3 gap-4">
+        <div>
+          <p class="section-label mb-2">Objective</p>
+          <p class="text-sm" style="color:#94a3b8;">Pipe <code class="font-mono text-xs" style="color:var(--green);">curl</code> output directly into <code class="font-mono text-xs" style="color:var(--green);">scrape</code> to extract table column 2 (capitals) from the live test page on GitHub Pages.</p>
+        </div>
+        <div>
+          <p class="section-label mb-2">Command</p>
+          <div class="code-block p-3 flex items-start justify-between gap-2">
+            <pre class="font-mono text-xs" style="color:#cbd5e1;"><span style="color:#475569;">curl</span> -s <span style="color:#fbbf24;">https://aborruso.github.io/</span>
+<span style="color:#fbbf24;">  scrape-cli/resources/test.html</span> \
+| scrape \
+  -e <span style="color:#fbbf24;">"//table[@class='data-table']</span>
+<span style="color:#fbbf24;">     /tbody/tr/td[2]"</span> -t</pre>
+            <button onclick="copyCode(this,&quot;curl -s https://aborruso.github.io/scrape-cli/resources/test.html | scrape -e &quot;//table[@class='data-table']/tbody/tr/td[2]&quot; -t&quot;)" class="font-mono text-xs px-2 py-1 rounded border flex-shrink-0" style="color:#64748b;border-color:#2d3f55;">Copy</button>
+          </div>
+        </div>
+        <div>
+          <p class="section-label mb-2">Output</p>
+          <div class="code-block p-3">
+            <pre class="font-mono text-xs" style="color:#4ade80;">Rome
+Paris
+Berlin
+Madrid</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="px-6 py-10 border-t" style="border-color:#1a2433;">
+  <div class="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+    <a href="index.html" class="font-display font-bold" style="color:var(--green);">scrape-cli</a>
+    <div class="flex items-center gap-6 text-sm">
+      <a href="https://github.com/aborruso/scrape-cli" target="_blank" rel="noopener"
+         class="transition-colors hover:text-white" style="color:#475569;">GitHub</a>
+      <a href="https://github.com/aborruso/scrape-cli/blob/master/LICENSE" target="_blank" rel="noopener"
+         class="transition-colors hover:text-white" style="color:#475569;">MIT License</a>
+      <a href="https://pypi.org/project/scrape-cli/" target="_blank" rel="noopener"
+         class="transition-colors hover:text-white" style="color:#475569;">PyPI</a>
+    </div>
+    <div class="font-mono text-sm" style="color:#3d5166;">
+      by <a href="https://github.com/aborruso" target="_blank" rel="noopener"
+            class="transition-colors hover:text-white" style="color:#475569;">@aborruso</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+function copyCode(btn, text) {
+  navigator.clipboard.writeText(text).then(function() {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(function() {
+      btn.textContent = 'Copy';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+</script>
+</body>
+</html>
