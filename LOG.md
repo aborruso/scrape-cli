@@ -2,6 +2,10 @@
 
 ## 2026-02-22
 
+- Remove `setup.py` (superseded by `pyproject.toml`)
+- Add `timeout=30` to `requests.get()` in `scrape.py`
+- Bump `requires-python` to `>=3.8` in `pyproject.toml`
+
 - Created `index.html`: modern standalone landing page (HTML + Tailwind CDN + vanilla JS)
   - Hero with terminal typing animation
   - Why scrape-cli — 4 benefit cards
