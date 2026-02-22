@@ -1,3 +1,7 @@
+# 2026-02-23
+
+- [1.2.2] Added `-u`/`--user-agent` option for HTTP requests; set a default browser-like User-Agent to avoid 403 errors on sites like Wikipedia.
+
 # 2026-02-22
 
 - [1.2.1] Added automated pytest coverage for XPath/CSS detection and CLI options, including URL/file/stdin input paths and error handling.

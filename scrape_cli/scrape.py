@@ -128,6 +128,8 @@ def main():
     parser.add_argument('-r', '--rawinput', action='store_true', default=False,
                         help="Do not parse HTML before passing to etree (useful for CData)")
     parser.add_argument('--check-existence', dest='check_existence', action='store_true')
+    parser.add_argument('-u', '--user-agent', default=None,
+                        help="Custom User-Agent string for HTTP requests")
     args = parser.parse_args()
 
     # Check that at least one expression is provided by the user (unless using -t option)
@@ -142,7 +144,9 @@ def main():
         if args.html.startswith('http://') or args.html.startswith('https://'):
             # If the input is a URL, download the HTML content
             try:
-                response = requests.get(args.html, timeout=30)
+                ua = args.user_agent or "Mozilla/5.0 (compatible; scrape-cli/1.0)"
+                headers = {"User-Agent": ua}
+                response = requests.get(args.html, headers=headers, timeout=30)
                 response.raise_for_status()
                 inp = response.content
             except requests.RequestException as e:

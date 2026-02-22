@@ -1,5 +1,9 @@
 # LOG
 
+## 2026-02-23
+
+- Add `-u`/`--user-agent` option; set default UA to avoid 403 on sites like Wikipedia
+
 ## 2026-02-22
 
 - Remove `setup.py` (superseded by `pyproject.toml`)
