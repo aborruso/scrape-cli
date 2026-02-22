@@ -33,7 +33,7 @@ uv tool install scrape-cli
 uv pip install scrape-cli
 
 # Or run temporarily without installing
-uvx scrape-cli --help
+uvx --from scrape-cli scrape --help
 ```
 
 ### Using pip
