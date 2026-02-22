@@ -1,14 +1,16 @@
 scrape.spec
-dist
-build
 dist/
+build/
 
 venv/
 .venv/
 ENV/
 
-build/
 *.egg-info/
 __pycache__/
+.pytest_cache/
+.coverage
+htmlcov/
+
 .aider*
 nanobanana-output/

@@ -1,3 +1,9 @@
+# 2026-02-22
+
+- [1.2.1] Added automated pytest coverage for XPath/CSS detection and CLI options, including URL/file/stdin input paths and error handling.
+- Hardened runtime behavior by adding `timeout=30` to URL fetches and replacing a bare `except:` with `except Exception` in charset detection.
+- Raised `requires-python` to `>=3.8`, removed legacy `setup.py`, and expanded `.gitignore` for local test/venv artifacts.
+
 # 2025-09-07
 
 - [1.2.0] Fixed XPath detection for expressions wrapped in parentheses: XPath expressions like `(//div[@class='coordinate lat'])[1]` are now correctly recognized as XPath instead of being incorrectly treated as CSS selectors.

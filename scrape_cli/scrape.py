@@ -142,7 +142,7 @@ def main():
         if args.html.startswith('http://') or args.html.startswith('https://'):
             # If the input is a URL, download the HTML content
             try:
-                response = requests.get(args.html)
+                response = requests.get(args.html, timeout=30)
                 response.raise_for_status()
                 inp = response.content
             except requests.RequestException as e:
@@ -189,7 +189,7 @@ def main():
             meta = re.search(r'<meta[^>]+charset=["\']?([\w-]+)', head)
             if meta:
                 return meta.group(1)
-        except:
+        except Exception:
             pass
         return None
 
