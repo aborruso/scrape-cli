@@ -2,6 +2,7 @@
 
 ## 2026-11-06
 
+- v1.3.6: rilascio con `--json-array` e le correzioni qui sotto
 - HTML senza elementi (soli spazi o commenti): errore di una riga con codice 1, prima traceback
 - `--json-array`: lista piatta, un elemento per risultato, nell'ordine delle espressioni; `-j` invariato salvo la correzione qui sotto (change OpenSpec `json-array-output`)
 - Il testo che segue un elemento selezionato non finisce più nell'output con `-e`, `-b` e `-j`

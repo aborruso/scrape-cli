@@ -1,5 +1,6 @@
 # 2026-11-06
 
+- [1.3.6] Added `--json-array`: always a flat JSON list, one item per result, in the order of the expressions. Text following a selected element no longer appears in the output of `-e`, `-b` and `-j`: scripts that relied on it need updating. With `-r`, malformed input now gives `Error parsing XML:`. HTML with no elements, such as only spaces or comments, gives a one-line error instead of a traceback.
 - [1.3.5] HTML that is not valid UTF-8 and has no usable meta charset is now read as Windows-1252, then ISO-8859-1, so `€` and curly quotes come out correct (#29).
 - [1.3.4] HTML that is not valid UTF-8 and has no usable meta charset is now read as ISO-8859-1: the previous fallback never ran, so characters came out wrong with no error. Added `scrape-cli` as a second name for the `scrape` command.
 - [1.3.3] `--help` rewritten so that agents and scripts need no other document: output per mode, exit codes, edge cases, commented examples. Invalid XPath expressions and unreadable input now give a one-line error instead of a traceback.
