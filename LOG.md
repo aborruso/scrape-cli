@@ -2,6 +2,7 @@
 
 ## 2026-11-06
 
+- CI: `actions/checkout` e `actions/setup-python` a v7
 - CI GitHub Actions: pytest su Python 3.8-3.14
 - `-j` documentato in `manual.html` e `index.html`; requisito Python corretto a `>=3.8` nei documenti
 - v1.3.2: fix XPath con risultato singolo
