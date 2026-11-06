@@ -1,5 +1,6 @@
 # 2026-11-06
 
+- [1.3.5] HTML that is not valid UTF-8 and has no usable meta charset is now read as Windows-1252, then ISO-8859-1, so `€` and curly quotes come out correct (#29).
 - [1.3.4] HTML that is not valid UTF-8 and has no usable meta charset is now read as ISO-8859-1: the previous fallback never ran, so characters came out wrong with no error. Added `scrape-cli` as a second name for the `scrape` command.
 - [1.3.3] `--help` rewritten so that agents and scripts need no other document: output per mode, exit codes, edge cases, commented examples. Invalid XPath expressions and unreadable input now give a one-line error instead of a traceback.
 - [1.3.2] XPath functions returning a single value now work: `string()` and `normalize-space()` no longer split the text one character per line, `count()` and `boolean()` no longer crash with a traceback, and `-x` follows the function's value.
