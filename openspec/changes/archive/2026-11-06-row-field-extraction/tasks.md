@@ -18,5 +18,5 @@
 
 ## 4. Release
 
-- [ ] 4.1 Bump the version and update `CHANGELOG.md`, after confirmation
-- [ ] 4.2 Archive this change after the release
+- [x] 4.1 Bump the version and update `CHANGELOG.md`, after confirmation
+- [x] 4.2 Archive this change after the release

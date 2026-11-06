@@ -1,6 +1,6 @@
-# Prossimo rilascio
+# Rilascio 1.3.7
 
-Raccogliere altre modifiche prima della 1.3.7 (scelta del 2026-11-06).
+Pubblicata il 2026-11-06, change archiviate in `openspec/changes/archive/`.
 
 - [x] Errori con `--json-array` che nominano il flag → commit c692307
 - [x] Documentazione di `--json-array`: espressioni miste, `count()`, esempi `jq` → esempi eseguiti su una pagina di prova

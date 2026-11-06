@@ -2,6 +2,7 @@
 
 ## 2026-11-06
 
+- v1.3.7 su PyPI, CI verde su Python 3.8-3.14; change `resolve-relative-urls` e `row-field-extraction` archiviate
 - v1.3.7: rilascio con `--row`, `--field`, `--jsonl`, `--absolute-urls`, `--base-url`
 - `--row` e `--field`: un oggetto JSON per elemento, con le stesse chiavi; `--jsonl`: un valore JSON per riga (change OpenSpec `row-field-extraction`)
 - `./h2` ora è riconosciuto come XPath, prima dava un errore CSS
