@@ -117,6 +117,26 @@ def test_encoding_falls_back_to_iso_8859_1_without_meta(tmp_path):
     assert result.stdout == "Caffè\n"
 
 
+def test_encoding_windows_1252_without_meta(tmp_path):
+    html_file = tmp_path / "cp1252.html"
+    html_file.write_bytes("<h1>Caffè € ’</h1>".encode("cp1252"))
+
+    result = run_scrape(str(html_file), "-e", "string(//h1)")
+
+    assert result.returncode == 0
+    assert result.stdout == "Caffè € ’\n"
+
+
+def test_encoding_bytes_undefined_in_windows_1252_fall_back_to_iso_8859_1(tmp_path):
+    html_file = tmp_path / "undefined.html"
+    html_file.write_bytes(b"<h1>Caff\xe8 \x81</h1>")
+
+    result = run_scrape(str(html_file), "-e", "string(//h1)")
+
+    assert result.returncode == 0
+    assert result.stdout.startswith("Caffè")
+
+
 def test_encoding_utf8_without_meta_is_not_converted(tmp_path):
     html_file = tmp_path / "utf8.html"
     html_file.write_bytes("<h1>Caffè €</h1>".encode("utf-8"))

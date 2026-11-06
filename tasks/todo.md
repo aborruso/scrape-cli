@@ -1,3 +1,7 @@
+# Issue 29, Windows-1252 senza meta tag (2026-11-06)
+
+- [x] Prima Windows-1252, poi ISO-8859-1 → test nuovi falliti prima del fix, verdi dopo
+
 # Migrazione OpenSpec (2026-11-06)
 
 - [x] Commit della migrazione al flusso `opsx`; tenute tutte le cartelle, perché claude, codex, opencode e copilot sono installati

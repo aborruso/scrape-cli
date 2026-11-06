@@ -162,8 +162,8 @@ notes:
   - -j fails with exit 1 on attribute names that are not valid XML, such as
     @click or :bind. Use -e without -j on those pages.
   - URLs: 30 s timeout, HTTP errors (4xx, 5xx) exit 1.
-  - Charset: from the meta tag, otherwise UTF-8, and ISO-8859-1 if the bytes
-    are not valid UTF-8. Other encodings need the meta tag.
+  - Charset: from the meta tag, otherwise UTF-8. If the bytes are not valid
+    UTF-8: Windows-1252, then ISO-8859-1. Other encodings need the meta tag.
 '''
     )
 
@@ -307,7 +307,11 @@ notes:
             try:
                 inp.decode('utf-8')
             except UnicodeDecodeError:
-                inp = inp.decode('iso-8859-1').encode('utf-8')
+                # cp1252 rejects five undefined bytes, iso-8859-1 accepts them all
+                try:
+                    inp = inp.decode('cp1252').encode('utf-8')
+                except UnicodeDecodeError:
+                    inp = inp.decode('iso-8859-1').encode('utf-8')
             document = etree.fromstring(inp, html_parser)
     except (etree.XMLSyntaxError, UnicodeDecodeError) as e:
         # Print an error in case of syntax issues in the HTML

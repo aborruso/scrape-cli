@@ -2,6 +2,7 @@
 
 ## 2026-11-06
 
+- HTML non UTF-8 senza meta tag: prima Windows-1252, poi ISO-8859-1 (issue #29)
 - Migrazione OpenSpec al flusso `opsx`; contesto da `openspec/project.md` a `openspec/config.yaml`
 - Extra `dev` con pytest in `pyproject.toml`
 - v1.3.4: `scrape-cli` come secondo nome del comando `scrape`
