@@ -107,6 +107,35 @@ def test_encoding_meta_charset_iso_8859_1(tmp_path):
     assert result.stdout.strip() == "Perché"
 
 
+def test_encoding_falls_back_to_iso_8859_1_without_meta(tmp_path):
+    html_file = tmp_path / "latin1.html"
+    html_file.write_bytes("<h1>Caffè</h1>".encode("iso-8859-1"))
+
+    result = run_scrape(str(html_file), "-e", "string(//h1)")
+
+    assert result.returncode == 0
+    assert result.stdout == "Caffè\n"
+
+
+def test_encoding_utf8_without_meta_is_not_converted(tmp_path):
+    html_file = tmp_path / "utf8.html"
+    html_file.write_bytes("<h1>Caffè €</h1>".encode("utf-8"))
+
+    result = run_scrape(str(html_file), "-e", "string(//h1)")
+
+    assert result.stdout == "Caffè €\n"
+
+
+def test_rawinput_keeps_the_encoding_declared_by_the_xml(tmp_path):
+    xml_file = tmp_path / "latin1.xml"
+    xml_file.write_bytes('<?xml version="1.0" encoding="iso-8859-1"?><a>Caffè</a>'.encode("iso-8859-1"))
+
+    result = run_scrape(str(xml_file), "-r", "-e", "string(//a)")
+
+    assert result.returncode == 0
+    assert result.stdout == "Caffè\n"
+
+
 def test_argument_extracts_attribute_value():
     result = run_scrape(str(TEST_HTML), "-e", "//a[@class='external-link']", "-a", "href")
 

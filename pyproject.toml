@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "scrape_cli"
-version = "1.3.3"
+version = "1.3.4"
 description = "It's a command-line tool to extract HTML elements using an XPath query or CSS3 selector."
 readme = "README.md"
 authors = [
@@ -27,6 +27,7 @@ Homepage = "https://github.com/aborruso/scrape-cli"
 
 [project.scripts]
 scrape = "scrape_cli.scrape:main"
+scrape-cli = "scrape_cli.scrape:main"
 
 [tool.setuptools.packages.find]
 where = ["."]

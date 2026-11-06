@@ -1,3 +1,10 @@
+# Ripiego ISO-8859-1 (2026-11-06)
+
+- [x] Input HTML non UTF-8 senza meta tag convertito da ISO-8859-1 → 39/39 test; XML con `-r` e UTF-8 invariati; output uguale alla 1.3.3 in 5 casi.
+- Limite noto: senza meta tag i byte windows-1252 come `€` (0x80) restano caratteri di controllo.
+
+Rilascio 1.3.4 e alias `scrape-cli` confermati il 2026-11-06.
+
 # Help per gli agenti (2026-11-06)
 
 Rilasciato in 1.3.3 il 2026-11-06. Change archiviata in `openspec/changes/archive/`.
