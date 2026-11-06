@@ -127,7 +127,7 @@ scrape -e "table" --plugin extract_pandas file.html
 
 ### 11. Resolve relative URLs
 
-Proposed in `openspec/changes/resolve-relative-urls/`.
+Implemented in `openspec/changes/resolve-relative-urls/`, to be released.
 
 ### 12. Several associated fields per element
 
@@ -140,11 +140,11 @@ From a list of articles, get title, link and date for each one. Separate `-e` lo
 ]
 ```
 
-Probably the feature with the most value. The syntax needs careful design.
+Proposed in `openspec/changes/row-field-extraction/`.
 
 ### 13. JSON Lines
 
-One JSON result per line, for `jq`, DuckDB and pipelines on large output. To evaluate together with idea 12.
+One JSON result per line, for `jq`, DuckDB and pipelines on large output. Proposed in `openspec/changes/row-field-extraction/`.
 
 ### 14. Control over HTTP requests
 

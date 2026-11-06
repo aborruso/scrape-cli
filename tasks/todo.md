@@ -4,10 +4,13 @@ Raccogliere altre modifiche prima della 1.3.7 (scelta del 2026-11-06).
 
 - [x] Errori con `--json-array` che nominano il flag → commit c692307
 - [x] Documentazione di `--json-array`: espressioni miste, `count()`, esempi `jq` → esempi eseguiti su una pagina di prova
-- [ ] URL assoluti: change `resolve-relative-urls` scritta e valida, da approvare e implementare
+- [x] URL assoluti: change `resolve-relative-urls` implementata → 77 test, output senza flag uguale alla 1.3.6, prova reale su IANA
+- [ ] Campi associati e JSON Lines: change `row-field-extraction` scritta e valida, da approvare e implementare
 - [ ] `CHANGELOG.md` e versione, al rilascio
 
-Idee da valutare in `docs/future-ideas.md`: campi associati (12), JSON Lines (13), richieste HTTP (14), idee minori (15).
+Idee da valutare in `docs/future-ideas.md`: richieste HTTP (14), idee minori (15).
+
+Domande aperte sulla change `row-field-extraction`: primo risultato per campo? `--jsonl` nella stessa change? nomi dei flag?
 
 # Testo dopo l'elemento (2026-11-06)
 

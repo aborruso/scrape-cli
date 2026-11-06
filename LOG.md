@@ -2,6 +2,7 @@
 
 ## 2026-11-06
 
+- Proposta OpenSpec `row-field-extraction`: campi associati con `--row` e `--field`, `--jsonl`
 - `--absolute-urls` e `--base-url`: `href` e `src` assoluti in output, con `<base href>` (change OpenSpec `resolve-relative-urls`)
 - Proposta OpenSpec `resolve-relative-urls`; nuove idee in `docs/future-ideas.md`
 - `--json-array`: documentati espressioni miste, `count()` come stringa ed esempi con `jq`; URL relativi in `docs/future-ideas.md`
