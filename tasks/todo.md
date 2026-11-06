@@ -1,3 +1,36 @@
+# Fix dalla review di v1.3.0 (2026-11-06)
+
+## Fase 1 - test che riproducono i difetti
+
+- [x] Test per risultati stringa con `&`, errore pulito su attributi non XML, guardie `-eb`/`-ej` → verify: falliscono prima del fix
+
+## Fase 2 - fix in `scrape_cli/scrape.py`
+
+- [x] Escape dei risultati stringa in modalità `-j` → verify: `-je '//p/text()' resources/test.html` rc=0
+- [x] `ExpatError` gestito con errore di una riga → verify: niente traceback con `@click`
+- [x] Guardie `-eb`/`-ej` sul token esatto, non sulla sottostringa → verify: `-e a file-ej.html` rc=0, `-ej` e `-eb` ancora bloccati
+
+## Fase 3 - documentazione
+
+- [x] `xmltodict` nelle liste delle dipendenze, limite degli attributi nel README, voce in LOG → verify: `grep xmltodict`, `pytest tests/`
+
+## Review
+
+- 4 test falliti prima del fix, 27/27 passati dopo (2026-11-06, `.venv/bin/python -m pytest tests/`). Modifiche non committate.
+- Limite noto: le guardie ora controllano solo i token esatti `-eb` e `-ej`; forme come `-xeb` non vengono più intercettate.
+- `-e 'string(//h1)'` spezza il testo carattere per carattere anche senza `-j`: difetto preesistente, non toccato.
+
+## Decisioni (2026-11-06, delegate a chi implementa)
+
+- `-j` su `@attr`/`text()`: array se i risultati sono più di uno; con elementi e stringhe insieme le stringhe restano unite in `#text`.
+- Attributi `@click`, `:bind`: resta l'errore di una riga.
+- `-j` con stdout non UTF-8: invariato.
+- Versione 1.3.1 e CHANGELOG aggiornati, commit sul branch `fix-json-1.3.1`.
+
+## Domande aperte
+
+- Merge su `master`, tag e pubblicazione su PyPI: da decidere.
+
 # Agent-friendly CLI improvements
 
 ## Analisi dei principi applicabili

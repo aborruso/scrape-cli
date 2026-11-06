@@ -183,6 +183,26 @@ def test_incorrect_eb_order_exits_with_specific_message():
     assert "use -be not -eb" in result.stderr
 
 
+def test_incorrect_ej_order_exits_with_specific_message():
+    result = run_scrape("-ej")
+
+    assert result.returncode == 1
+    assert "use -je not -ej" in result.stderr
+
+
+def test_order_checks_ignore_filenames_and_selectors(tmp_path):
+    for name in ("page-eb.html", "page-ej.html"):
+        html_file = tmp_path / name
+        html_file.write_text("<h1>ok</h1>", encoding="utf-8")
+        result = run_scrape(str(html_file), "-e", "h1")
+        assert result.returncode == 0, result.stderr
+        assert "ok" in result.stdout
+
+    for selector in (".page-ejected", ".page-ebook"):
+        result = run_scrape("-e", selector, input_data='<p class="x">ok</p>')
+        assert "use -" not in result.stderr
+
+
 def test_invalid_css_selector_fails_conversion():
     result = run_scrape(str(TEST_HTML), "-e", "div[")
 
@@ -233,6 +253,55 @@ def test_json_flag_conflicts_with_text_check_existence_argument():
     ja = run_scrape(str(TEST_HTML), "-j", "-e", "//a", "-a", "href")
     assert ja.returncode == 1
     assert "cannot be combined" in ja.stderr
+
+
+def test_json_flag_handles_string_results_with_special_characters():
+    html = '<a href="x?a=1&amp;b=2">AT&amp;T &lt;b&gt;</a>'
+
+    attr = run_scrape("-je", "//a/@href", input_data=html)
+    assert attr.returncode == 0, attr.stderr
+    assert json.loads(attr.stdout)["html"]["body"] == "x?a=1&b=2"
+
+    text = run_scrape("-je", "//a/text()", input_data=html)
+    assert text.returncode == 0, text.stderr
+    assert json.loads(text.stdout)["html"]["body"] == "AT&T <b>"
+
+
+def test_json_flag_returns_array_for_multiple_string_results():
+    html = '<a href="x?a=1&amp;b=2">uno</a> <a href="y">due</a>'
+
+    attrs = run_scrape("-je", "//a/@href", input_data=html)
+    assert attrs.returncode == 0, attrs.stderr
+    assert json.loads(attrs.stdout)["html"]["body"] == ["x?a=1&b=2", "y"]
+
+    # Whitespace-only text nodes are not results
+    texts = run_scrape("-je", "//body//text()", input_data=html)
+    assert json.loads(texts.stdout)["html"]["body"] == ["uno", "due"]
+
+
+def test_json_flag_mixed_elements_and_strings_still_converts():
+    result = run_scrape("-je", "//a | //a/@href", input_data='<a href="x&amp;y">uno</a>')
+
+    assert result.returncode == 0, result.stderr
+    body = json.loads(result.stdout)["html"]["body"]
+    assert body["a"]["#text"] == "uno"
+    assert body["#text"] == "x&y"
+
+
+def test_json_flag_text_results_work_on_test_file():
+    result = run_scrape(str(TEST_HTML), "-je", "//p/text()")
+
+    assert result.returncode == 0, result.stderr
+    assert json.loads(result.stdout)["html"]["body"]
+
+
+def test_json_flag_reports_clean_error_on_non_xml_attribute_name():
+    result = run_scrape("-je", "#v", input_data='<div id="v" @click="go">x</div>')
+
+    assert result.returncode == 1
+    assert "Error:" in result.stderr
+    assert "Traceback" not in result.stderr
+    assert result.stdout == ""
 
 
 def test_url_input_downloads_and_extracts_text():

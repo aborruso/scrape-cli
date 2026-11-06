@@ -1,3 +1,7 @@
+# 2026-11-06
+
+- [1.3.1] `-j`: expressions returning only strings (`@attr`, `text()`) now give an array when there are multiple results, instead of one string joined by newlines. Fixed a traceback on strings containing `&` or `<`; attribute names that are not valid XML (`@click`, `:bind`) now give a one-line error. `-eb`/`-ej` order checks no longer trigger on filenames and selectors containing those letters.
+
 # 2026-04-30
 
 - [1.3.0] Added native `-j`/`--json` flag to output structured JSON without needing `-b` or piping through external `xq`. Internally uses `xmltodict` (the same converter `xq` uses), so the output is identical. `-j` is mutually exclusive with `-t`, `-x` (`--check-existence`), and `-a` (`--argument`).

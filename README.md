@@ -57,6 +57,7 @@ pip install -e .
 - requests
 - lxml
 - cssselect
+- xmltodict
 
 ## How does it work?
 
@@ -265,9 +266,11 @@ Output:
 }
 ```
 
-`-j` automatically wraps the result in `<html>/<body>` before conversion, so you don't need to pass `-b`. The output is the same you would get from `scrape -be ... | xq .` (the underlying converter is `xmltodict`, the same library used by `xq`).
+`-j` automatically wraps the result in `<html>/<body>` before conversion, so you don't need to pass `-b`. For elements, the output is the same you would get from `scrape -be ... | xq .` (the underlying converter is `xmltodict`, the same library used by `xq`). Expressions that return only strings, such as `//a/@href` or `//p/text()`, give the string in `body` when there is one result and an array when there are more.
 
 `-j` is mutually exclusive with `-t`, `-x` (`--check-existence`) and `-a` (`--argument`).
+
+`-j` exits with an error when a matched element has an attribute name that is not valid XML, such as `@click` or `:bind`.
 
 Useful for JSON-based pipelines, APIs, databases, and processing with jq/DuckDB.
 

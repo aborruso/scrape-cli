@@ -1,5 +1,11 @@
 # LOG
 
+## 2026-11-06
+
+- v1.3.1: `-j` su sole stringhe (`@attr`, `text()`) dà un array se i risultati sono più di uno, invece di una stringa unita da `\n`
+- `-j`: niente più traceback con `&`/`<` nelle stringhe; attributi non XML (`@click`, `:bind`) danno errore di una riga
+- Guardie `-eb`/`-ej` sul token esatto: non bloccano più file e selettori che contengono quelle lettere
+
 ## 2026-04-30
 
 - v1.3.0: native `-j`/`--json` output (built-in `xmltodict`, no external `xq` needed, no `-b` required)

@@ -16,6 +16,7 @@
 - lxml - HTML/XML parsing and XPath evaluation
 - cssselect - CSS selector to XPath translation
 - requests - HTTP client for URL fetching
+- xmltodict - XML to JSON conversion for `-j`
 - setuptools - packaging and distribution
 
 ## Project Conventions
@@ -81,6 +82,7 @@
 - lxml: HTML/XML parsing engine (C-based, high performance)
 - cssselect: CSS3 selector to XPath converter
 - requests: HTTP library for fetching URLs
+- xmltodict: XML to JSON converter used by `-j`
 
 ### Installation Methods
 

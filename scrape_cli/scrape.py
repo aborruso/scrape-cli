@@ -6,7 +6,7 @@
 # $ curl 'https://en.wikipedia.org/wiki/List_of_sovereign_states' -s \
 # | scrape -e 'table.wikitable > tbody > tr > td > b > a'
 #
-# Dependencies: lxml, cssselect, requests
+# Dependencies: lxml, cssselect, requests, xmltodict
 #
 # Author: http://jeroenjanssens.com
 
@@ -19,6 +19,8 @@ import requests
 import xmltodict
 from lxml import etree
 from cssselect import GenericTranslator
+from xml.parsers.expat import ExpatError
+from xml.sax.saxutils import escape
 
 # Read version from __init__.py
 init_file = os.path.join(os.path.dirname(__file__), '__init__.py')
@@ -118,11 +120,10 @@ examples:
     parser.add_argument('--version', action='version', version=f'%(prog)s {__version__}')
 
     # Check for incorrect argument order (-eb instead of -be, -ej instead of -je)
-    joined_argv = ' '.join(sys.argv)
-    if '-eb' in joined_argv:
+    if '-eb' in sys.argv[1:]:
         print("Error: use -be not -eb.\n  scrape -be \"//article\" file.html", file=sys.stderr)
         sys.exit(1)
-    if '-ej' in joined_argv:
+    if '-ej' in sys.argv[1:]:
         print("Error: use -je not -ej.\n  scrape -je \"//article\" file.html", file=sys.stderr)
         sys.exit(1)
     # Defines the HTML input argument (can be a file, URL or stdin)
@@ -262,6 +263,7 @@ examples:
         sys.exit(1)
 
     results = []
+    string_results = []
     # For each expression, perform the search in the parsed HTML
     for e in expression:
         els = list(document.xpath(e))
@@ -278,6 +280,10 @@ examples:
                 # Clean the text when using -t option
                 if args.text:
                     text = clean_text(text)
+                # Strings are plain text, but -j parses the results as XML
+                if args.json:
+                    string_results.append(text.strip())
+                    text = escape(text)
             elif args.text:
                 # If -t option is used, extract only text content
                 if hasattr(el, 'text_content'):
@@ -303,8 +309,18 @@ examples:
 
     # Output handling
     if args.json:
-        wrapped = "<!DOCTYPE html>\n<html>\n<body>\n" + "".join(r + "\n" for r in results) + "</body>\n</html>\n"
-        parsed = xmltodict.parse(wrapped)
+        values = [s for s in string_results if s]
+        if values and len(string_results) == len(results):
+            # Only strings (@attr, text()): XML conversion would merge them into one
+            parsed = {"html": {"body": values[0] if len(values) == 1 else values}}
+        else:
+            wrapped = "<!DOCTYPE html>\n<html>\n<body>\n" + "".join(r + "\n" for r in results) + "</body>\n</html>\n"
+            try:
+                parsed = xmltodict.parse(wrapped)
+            except ExpatError as e:
+                print(f"Error: cannot convert result to JSON, it is not valid XML ({e}). "
+                      "Attribute names like @click or :bind are not supported by -j.", file=sys.stderr)
+                sys.exit(1)
         sys.stdout.write(json.dumps(parsed, indent=2, ensure_ascii=False) + "\n")
     elif args.body and not args.text:
         sys.stdout.write("<!DOCTYPE html>\n<html>\n<body>\n")
