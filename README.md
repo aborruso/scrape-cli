@@ -315,6 +315,27 @@ Some notes on the commands:
 - `-t` to extract only text content (useful for LLMs and text processing)
 
 
+### Absolute URLs
+
+Links and images often have relative values. Use `--absolute-urls` to get absolute `href` and `src` values, in every output mode except `-t`:
+
+```bash
+scrape --absolute-urls -e "//a/@href" https://www.iana.org/help/example-domains
+```
+
+With stdin or a local file there is no page URL, so pass it with `--base-url`, which implies `--absolute-urls`:
+
+```bash
+curl -s https://www.iana.org/help/example-domains \
+  | scrape --base-url https://www.iana.org/help/example-domains -e "//a/@href"
+```
+
+- The base is the first `<base href>` of the page, resolved against the page URL, as in browsers. With a URL as input, the page URL is the final one after redirects.
+- With no absolute base, the command exits with code 1.
+- Selection uses the original values, so `a[href^="/"]` still matches.
+- Other attributes, such as `srcset`, and XPath functions, such as `string(//a/@href)`, are not changed. Use `//a/@href`.
+- `--absolute-urls` and `--base-url` cannot be combined with `-r`, and are ignored with `-t` and `-x`.
+
 ## License
 
 [MIT](LICENSE)

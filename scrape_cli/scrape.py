@@ -15,10 +15,12 @@ import sys
 import re
 import json
 import argparse
+import copy
 import requests
 import xmltodict
 from lxml import etree
 from cssselect import GenericTranslator
+from urllib.parse import urljoin, urlsplit
 from xml.parsers.expat import ExpatError
 from xml.sax.saxutils import escape
 
@@ -65,6 +67,42 @@ def xpath_result_items(result):
     if isinstance(result, float):
         return [str(int(result)) if result.is_integer() else str(result)]
     return [result] if result else []
+
+
+def is_absolute_url(url):
+    try:
+        parts = urlsplit(url)
+    except ValueError:
+        return False
+    return bool(parts.scheme and parts.netloc)
+
+
+def resolve_url(base, value):
+    """Return value as an absolute URL, or unchanged if it cannot be parsed."""
+    try:
+        return urljoin(base, value.strip())
+    except ValueError:
+        return value
+
+
+def document_base(document, page_url):
+    """Base as in the HTML standard: the first <base href>, against the page URL."""
+    hrefs = document.xpath('(//base[@href])[1]/@href')
+    if hrefs:
+        base = resolve_url(page_url or '', hrefs[0])
+        if is_absolute_url(base):
+            return base
+    return page_url
+
+
+def with_absolute_urls(el, base):
+    """Copy the element, so that later expressions still see the original values."""
+    el = copy.deepcopy(el)
+    for node in el.xpath('descendant-or-self::*[@href or @src]'):
+        for name in ('href', 'src'):
+            if name in node.attrib:
+                node.set(name, resolve_url(base, node.get(name)))
+    return el
 
 
 def wrap_in_body(results):
@@ -134,6 +172,10 @@ examples:
   scrape -te "//article" file.html      text of the matching elements
   scrape -je "a" file.html              JSON
   scrape --json-array -e "a" file.html  JSON, always a flat list
+  scrape --absolute-urls -e "//a/@href" https://example.org/
+                                        absolute href and src values
+  curl -s https://example.org/ | scrape --base-url https://example.org/ -e "a"
+                                        same, for stdin or a local file
   scrape -be "//article" file.html      wrap output in <html><body>
   scrape -x -e "//h1" file.html         test only: exit code, no output
   scrape -e "//h1" https://example.com  fetch from URL
@@ -167,6 +209,10 @@ notes:
   - -j fails with exit 1 on attribute names that are not valid XML, such as
     @click or :bind. Use -e without -j on those pages.
   - URLs: 30 s timeout, HTTP errors (4xx, 5xx) exit 1.
+  - --absolute-urls changes href and src in the output, not in selection:
+    a[href^="/"] still matches. Base: the first <base href>, against the page
+    URL or --base-url. No absolute base: exit 1. XPath functions such as
+    string(//a/@href) are not changed. Not with -r, ignored with -t and -x.
   - Charset: from the meta tag, otherwise UTF-8. If the bytes are not valid
     UTF-8: Windows-1252, then ISO-8859-1. Other encodings need the meta tag.
 '''
@@ -199,6 +245,10 @@ notes:
                         help="Output structured JSON, see below. Not with -t, -x, -a")
     parser.add_argument('--json-array', action='store_true', default=False,
                         help="Output JSON as a flat list, one item per result, see below. Same limits as -j")
+    parser.add_argument('--absolute-urls', action='store_true', default=False,
+                        help="Output href and src values as absolute URLs, see notes")
+    parser.add_argument('--base-url', default=None, metavar="URL",
+                        help="Page URL for stdin and local files. Implies --absolute-urls")
     # Allows to specify one or more XPath or CSS3 selector expressions
     parser.add_argument('-e', '--expression', default=[], action='append',
                         help="XPath query or CSS3 selector, detected automatically. Repeatable")
@@ -227,6 +277,14 @@ notes:
         print(f"Error: {json_flag} cannot be combined with -a/--argument.", file=sys.stderr)
         sys.exit(1)
 
+    if args.base_url and not is_absolute_url(args.base_url):
+        print(f"Error: --base-url must be an absolute URL, got '{args.base_url}'.", file=sys.stderr)
+        sys.exit(1)
+    absolute_urls = args.absolute_urls or bool(args.base_url)
+    if absolute_urls and args.rawinput:
+        print("Error: --absolute-urls and --base-url cannot be combined with -r/--rawinput.", file=sys.stderr)
+        sys.exit(1)
+
     # Check that at least one expression is provided by the user (unless using -t option)
     if not args.expression and not args.text:
         print(
@@ -237,6 +295,7 @@ notes:
         )
         sys.exit(1)
 
+    page_url = args.base_url
     # Determine the source of the input: URL, file, or stdin
     if args.html:
         if args.html.startswith('http://') or args.html.startswith('https://'):
@@ -247,6 +306,7 @@ notes:
                 response = requests.get(args.html, headers=headers, timeout=30)
                 response.raise_for_status()
                 inp = response.content
+                page_url = page_url or response.url
             except requests.RequestException as e:
                 print(f"Error downloading HTML: {e}", file=sys.stderr)
                 sys.exit(1)
@@ -332,6 +392,15 @@ notes:
         print("Error parsing HTML: no elements found in the input", file=sys.stderr)
         sys.exit(1)
 
+    # -t and -x output no attribute values
+    base = None
+    if absolute_urls and not args.text and not args.check_existence:
+        base = document_base(document, page_url)
+        if not base:
+            print("Error: no base for --absolute-urls: use --base-url URL, "
+                  "or a page with an absolute <base href>.", file=sys.stderr)
+            sys.exit(1)
+
     results = []
     string_results = []
     # --json-array items: str for strings, bytes for element markup
@@ -352,6 +421,12 @@ notes:
 
         # Extract the text or content of the found elements
         for el in els:
+            if base:
+                if isinstance(el, str):
+                    if getattr(el, 'is_attribute', False) and el.attrname in ('href', 'src'):
+                        el = resolve_url(base, el)
+                elif isinstance(el.tag, str):
+                    el = with_absolute_urls(el, base)
             if args.json_array:
                 if isinstance(el, str):
                     if el.strip():

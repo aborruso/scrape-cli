@@ -278,7 +278,7 @@ def test_help_documents_the_contract_for_agents():
     result = run_scrape("--help")
 
     assert result.returncode == 0
-    for section in ("output:", "exit codes:", "notes:", "examples:", "--json-array"):
+    for section in ("output:", "exit codes:", "notes:", "examples:", "--json-array", "--base-url"):
         assert section in result.stdout
 
 
@@ -554,3 +554,156 @@ def test_html_input_with_no_elements_reports_clean_error():
             assert result.stdout == ""
             assert "Error parsing HTML: no elements found" in result.stderr
             assert "Traceback" not in result.stderr
+
+
+URLS_HTML = (
+    '<html><body><a id="i" href="/x">l</a><a href="https://o.org/p">o</a>'
+    '<a href="mailto:a@b.it">m</a><a href="javascript:void(0)">j</a>'
+    '<a href="http://[bad">b</a><a href="  /y  ">s</a>'
+    '<div><img src="i.png"></div></body></html>'
+)
+PAGE_URL = "https://e.org/a/b.html"
+
+
+def absolute(*args, input_data=URLS_HTML):
+    result = run_scrape("--base-url", PAGE_URL, *args, input_data=input_data)
+    assert result.returncode == 0, result.stderr
+    return result.stdout.split()
+
+
+def test_absolute_urls_attribute_expression():
+    assert absolute("-e", "//a/@href")[0] == "https://e.org/x"
+    assert absolute("-e", "//img/@src") == ["https://e.org/a/i.png"]
+
+
+def test_absolute_urls_attribute_option():
+    assert absolute("-e", "//img", "-a", "src") == ["https://e.org/a/i.png"]
+
+
+def test_absolute_urls_element_and_descendants():
+    result = run_scrape("--base-url", PAGE_URL, "-e", "div", input_data=URLS_HTML)
+    assert 'src="https://e.org/a/i.png"' in result.stdout
+    result = run_scrape("--base-url", PAGE_URL, "-be", "(//a)[1]", input_data=URLS_HTML)
+    assert 'href="https://e.org/x"' in result.stdout
+
+
+def test_absolute_urls_json_outputs():
+    result = run_scrape("--base-url", PAGE_URL, "--json-array", "-e", "(//a)[1]", input_data=URLS_HTML)
+    assert json.loads(result.stdout) == [{"a": {"@id": "i", "@href": "https://e.org/x", "#text": "l"}}]
+    result = run_scrape("--base-url", PAGE_URL, "-j", "-e", "//img/@src", input_data=URLS_HTML)
+    assert json.loads(result.stdout) == {"html": {"body": "https://e.org/a/i.png"}}
+
+
+def test_absolute_urls_leaves_other_values_unchanged():
+    assert absolute("-e", "//a/@id") == ["i"]
+    hrefs = absolute("-e", "//a/@href")
+    for value in ("https://o.org/p", "mailto:a@b.it", "javascript:void(0)", "http://[bad"):
+        assert value in hrefs
+
+
+def test_absolute_urls_strips_spaces():
+    assert absolute("-e", "//a/@href")[-1] == "https://e.org/y"
+
+
+def test_no_flag_keeps_original_values():
+    result = run_scrape("-e", "//a/@href", input_data=URLS_HTML)
+    assert result.stdout.split()[0] == "/x"
+
+
+def test_absolute_urls_selection_uses_original_values():
+    result = run_scrape("--base-url", PAGE_URL, "-e", 'a[href^="/"]', input_data=URLS_HTML)
+    assert 'href="https://e.org/x"' in result.stdout
+
+
+def test_absolute_urls_element_matched_by_two_expressions():
+    output = absolute("-e", "//a[@id='i']/@href", "-e", "//a[@href='/x']/@href")
+    assert output == ["https://e.org/x", "https://e.org/x"]
+    output = run_scrape("--base-url", PAGE_URL, "-e", "//a[@id='i']", "-e", "//a[@href='/x']", input_data=URLS_HTML)
+    assert output.stdout.count('href="https://e.org/x"') == 2
+
+
+def test_absolute_urls_leaves_function_results_unchanged():
+    assert absolute("-e", "string(//a/@href)") == ["/x"]
+
+
+def test_absolute_urls_uses_final_url_after_redirect():
+    class Handler(BaseHTTPRequestHandler):
+        def do_GET(self):
+            if self.path == "/old":
+                self.send_response(301)
+                self.send_header("Location", "/new/page.html")
+                self.end_headers()
+                return
+            body = b'<a href="x.html">l</a>'
+            self.send_response(200)
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+        def log_message(self, *args):
+            pass
+
+    server = HTTPServer(("127.0.0.1", 0), Handler)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        port = server.server_address[1]
+        result = run_scrape("--absolute-urls", "-e", "//a/@href", f"http://127.0.0.1:{port}/old")
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
+    assert result.stdout.strip() == f"http://127.0.0.1:{port}/new/x.html"
+
+
+def test_base_element_relative_to_page_url():
+    html = '<head><base href="/sub/"><base href="/other/"></head><img src="i.png">'
+    assert absolute("-e", "//img/@src", input_data=html) == ["https://e.org/sub/i.png"]
+
+
+def test_base_url_does_not_override_base_element():
+    html = '<head><base href="/sub/"></head><img src="i.png">'
+    result = run_scrape("--base-url", "https://e.org/", "-e", "//img/@src", input_data=html)
+    assert result.stdout.strip() == "https://e.org/sub/i.png"
+
+
+def test_base_element_that_is_not_usable_falls_back_to_page_url():
+    html = '<head><base href="http://[bad"></head><img src="i.png">'
+    assert absolute("-e", "//img/@src", input_data=html) == ["https://e.org/a/i.png"]
+
+
+def test_absolute_base_element_with_no_page_url():
+    html = '<head><base href="https://e.org/"></head><a href="/x">l</a>'
+    result = run_scrape("--absolute-urls", "-e", "//a/@href", input_data=html)
+    assert result.stdout.strip() == "https://e.org/x"
+
+
+def test_absolute_urls_with_no_base_is_an_error():
+    for html in (URLS_HTML, '<head><base href="/sub/"></head><a href="/x">l</a>'):
+        result = run_scrape("--absolute-urls", "-e", "//a/@href", input_data=html)
+        assert result.returncode == 1
+        assert result.stdout == ""
+        assert "--base-url" in result.stderr
+
+
+def test_base_url_must_be_absolute():
+    for value in ("page.html", "/a/b", "mailto:a@b.it"):
+        result = run_scrape("--base-url", value, "-e", "//a/@href", input_data=URLS_HTML)
+        assert result.returncode == 1
+        assert result.stdout == ""
+        assert "Error: --base-url" in result.stderr
+
+
+def test_absolute_urls_rejected_with_rawinput():
+    for flags in (["--absolute-urls"], ["--base-url", PAGE_URL]):
+        result = run_scrape(*flags, "-r", "-e", "//a", input_data="<a/>")
+        assert result.returncode == 1
+        assert result.stdout == ""
+        assert "-r" in result.stderr
+
+
+def test_absolute_urls_ignored_with_text_and_check_existence():
+    result = run_scrape("--absolute-urls", "-t", input_data=URLS_HTML.replace("<body>", "<body>testo "))
+    assert result.returncode == 0
+    assert "testo" in result.stdout
+    assert run_scrape("--absolute-urls", "-x", "-e", "a", input_data=URLS_HTML).returncode == 0

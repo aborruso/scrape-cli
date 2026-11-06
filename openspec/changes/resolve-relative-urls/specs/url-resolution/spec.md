@@ -92,6 +92,11 @@ The CLI SHALL use as base the first `<base>` with an `href`, resolved against th
 - **WHEN** `--base-url https://e.org/` is used on a page with `<base href="/sub/">`
 - **THEN** `i.png` gives `https://e.org/sub/i.png`
 
+#### Scenario: Base element that cannot be used
+
+- **WHEN** the page has `<base href="http://[bad">` and the page URL is `https://e.org/a/b.html`
+- **THEN** `i.png` gives `https://e.org/a/i.png`
+
 #### Scenario: Absolute base element with no page URL
 
 - **WHEN** stdin has `<base href="https://e.org/">` and `--absolute-urls` is used
