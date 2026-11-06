@@ -2,6 +2,10 @@
 
 ## 2026-11-06
 
+- v1.3.2: fix XPath con risultato singolo
+- XPath con risultato singolo: `string()` non si spezza più per carattere, `count()` e `boolean()` non vanno più in traceback; `-x` segue il valore della funzione
+- `releasing.md`: file aggiunti per nome invece di `git add -A`, pytest nello script, tag con `v`
+- Spec di `-j` in `openspec/specs/json-output/`
 - v1.3.1: `-j` su sole stringhe (`@attr`, `text()`) dà un array se i risultati sono più di uno, invece di una stringa unita da `\n`
 - `-j`: niente più traceback con `&`/`<` nelle stringhe; attributi non XML (`@click`, `:bind`) danno errore di una riga
 - Guardie `-eb`/`-ej` sul token esatto: non bloccano più file e selettori che contengono quelle lettere

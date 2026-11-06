@@ -288,6 +288,43 @@ def test_json_flag_mixed_elements_and_strings_still_converts():
     assert body["#text"] == "x&y"
 
 
+SCALAR_HTML = "<h1>Ciao</h1><a>1</a><a>2</a>"
+
+
+def test_xpath_functions_return_a_single_value():
+    cases = {
+        "string(//h1)": "Ciao\n",
+        "count(//a)": "2\n",
+        "boolean(//a)": "true\n",
+        "boolean(//nulla)": "false\n",
+        "string(//nulla)": "",
+    }
+    for expression, expected in cases.items():
+        result = run_scrape("-e", expression, input_data=SCALAR_HTML)
+        assert result.returncode == 0, result.stderr
+        assert result.stdout == expected, expression
+
+
+def test_check_existence_follows_xpath_function_value():
+    for expression, expected in {
+        "string(//h1)": 0,
+        "string(//nulla)": 1,
+        "count(//a)": 0,
+        "count(//nulla)": 1,
+        "boolean(//a)": 0,
+        "boolean(//nulla)": 1,
+    }.items():
+        result = run_scrape("-x", "-e", expression, input_data=SCALAR_HTML)
+        assert result.returncode == expected, expression
+
+
+def test_json_flag_with_xpath_functions():
+    for expression, expected in {"string(//h1)": "Ciao", "count(//a)": "2"}.items():
+        result = run_scrape("-je", expression, input_data=SCALAR_HTML)
+        assert result.returncode == 0, result.stderr
+        assert json.loads(result.stdout)["html"]["body"] == expected
+
+
 def test_json_flag_text_results_work_on_test_file():
     result = run_scrape(str(TEST_HTML), "-je", "//p/text()")
 

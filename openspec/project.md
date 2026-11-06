@@ -72,7 +72,7 @@
 - Python >=3.6 required for compatibility
 - Requires valid HTML input (uses lxml's error recovery)
 - XPath/CSS selector must be valid syntax
-- `-be` flag order requirement (not `-eb`)
+- `-be` and `-je` flag order requirement (not `-eb` or `-ej`)
 - Text mode (`-t`) excludes `<script>` and `<style>` tags automatically
 
 ## External Dependencies

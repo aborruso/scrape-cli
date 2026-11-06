@@ -1,5 +1,6 @@
 # 2026-11-06
 
+- [1.3.2] XPath functions returning a single value now work: `string()` and `normalize-space()` no longer split the text one character per line, `count()` and `boolean()` no longer crash with a traceback, and `-x` follows the function's value.
 - [1.3.1] `-j`: expressions returning only strings (`@attr`, `text()`) now give an array when there are multiple results, instead of one string joined by newlines. Fixed a traceback on strings containing `&` or `<`; attribute names that are not valid XML (`@click`, `:bind`) now give a one-line error. `-eb`/`-ej` order checks no longer trigger on filenames and selectors containing those letters.
 
 # 2026-04-30

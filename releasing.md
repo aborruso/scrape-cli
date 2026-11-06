@@ -67,10 +67,11 @@ This document outlines the steps needed to release a new version to PyPI.
 
 ## Final Release
 
-1. **Commit all release-related changes** (`pyproject.toml`, `__init__.py`, `CHANGELOG.md`, `LOG.md`, code, docs):
+1. **Commit all release-related changes** (`pyproject.toml`, `__init__.py`, `CHANGELOG.md`, `LOG.md`, code, docs). Stage files by name, so that unrelated work in the tree stays out, and check the staged list:
 
    ```bash
-   git add -A
+   git add pyproject.toml scrape_cli/ tests/ CHANGELOG.md LOG.md README.md
+   git diff --cached --stat
    git commit -m "v<version>: <short description>"
    git push origin master
    ```
@@ -78,8 +79,8 @@ This document outlines the steps needed to release a new version to PyPI.
 2. **Tag the release** (annotated tag, after the commit is pushed):
 
    ```bash
-   git tag -a <version> -m "Release <version>"
-   git push origin <version>
+   git tag -a v<version> -m "Release <version>"
+   git push origin v<version>
    ```
 
 3. **Upload the distribution packages to PyPI**:
@@ -106,7 +107,7 @@ This document outlines the steps needed to release a new version to PyPI.
 
    - Open https://github.com/aborruso/scrape-cli/releases
    - Click "Draft a new release"
-   - Select the tag you just pushed (e.g. `1.3.0`)
+   - Select the tag you just pushed (e.g. `v1.3.1`)
    - Title: `v<version>` (or copy from CHANGELOG)
    - Body: copy the matching CHANGELOG section
    - Publish
@@ -127,8 +128,8 @@ does not exist). If a release is broken:
 If you need to roll back the git tag locally:
 
 ```bash
-git tag -d <version>
-git push origin :refs/tags/<version>
+git tag -d v<version>
+git push origin :refs/tags/v<version>
 ```
 
 ## Automation
@@ -144,16 +145,17 @@ VERSION="$1"
 [ -z "$VERSION" ] && { echo "usage: $0 <version>"; exit 1; }
 
 source .venv/bin/activate
+pytest tests/
 rm -rf build/ dist/ scrape_cli.egg-info
 python3 -m build
 twine check dist/*
 
-git add -A
+git add pyproject.toml scrape_cli/ tests/ CHANGELOG.md LOG.md README.md
 git commit -m "v${VERSION}: release"
 git push origin master
 
-git tag -a "${VERSION}" -m "Release ${VERSION}"
-git push origin "${VERSION}"
+git tag -a "v${VERSION}" -m "Release ${VERSION}"
+git push origin "v${VERSION}"
 
 twine upload dist/*
 

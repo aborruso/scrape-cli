@@ -56,6 +56,21 @@ def convert_css_to_xpath(expression):
         print(f"Error converting CSS selector to XPath: {e}", file=sys.stderr)
         sys.exit(1)
 
+def xpath_result_items(result):
+    """XPath functions return a single string, number or boolean instead of a node list."""
+    if isinstance(result, list):
+        return result
+    if isinstance(result, bool):
+        return ['true' if result else 'false']
+    if isinstance(result, float):
+        return [str(int(result)) if result.is_integer() else str(result)]
+    return [result] if result else []
+
+
+def wrap_in_body(results):
+    return "<!DOCTYPE html>\n<html>\n<body>\n" + "".join(r + "\n" for r in results) + "</body>\n</html>\n"
+
+
 def is_xpath(expression):
     """
     Check if the expression is XPath by looking for common XPath patterns:
@@ -120,12 +135,10 @@ examples:
     parser.add_argument('--version', action='version', version=f'%(prog)s {__version__}')
 
     # Check for incorrect argument order (-eb instead of -be, -ej instead of -je)
-    if '-eb' in sys.argv[1:]:
-        print("Error: use -be not -eb.\n  scrape -be \"//article\" file.html", file=sys.stderr)
-        sys.exit(1)
-    if '-ej' in sys.argv[1:]:
-        print("Error: use -je not -ej.\n  scrape -je \"//article\" file.html", file=sys.stderr)
-        sys.exit(1)
+    for wrong, right in (('-eb', '-be'), ('-ej', '-je')):
+        if wrong in sys.argv[1:]:
+            print(f"Error: use {right} not {wrong}.\n  scrape {right} \"//article\" file.html", file=sys.stderr)
+            sys.exit(1)
     # Defines the HTML input argument (can be a file, URL or stdin)
     parser.add_argument('html', nargs='?', type=str, default='',
                         help="HTML input (file, URL or stdin, default: stdin)", metavar="HTML")
@@ -266,11 +279,13 @@ examples:
     string_results = []
     # For each expression, perform the search in the parsed HTML
     for e in expression:
-        els = list(document.xpath(e))
+        result = document.xpath(e)
 
         # If check-existence is enabled, return 0 or 1 depending on the existence of elements
         if args.check_existence:
-            sys.exit(1 if len(els) == 0 else 0)
+            sys.exit(0 if result else 1)
+
+        els = xpath_result_items(result)
 
         # Extract the text or content of the found elements
         for el in els:
@@ -314,19 +329,15 @@ examples:
             # Only strings (@attr, text()): XML conversion would merge them into one
             parsed = {"html": {"body": values[0] if len(values) == 1 else values}}
         else:
-            wrapped = "<!DOCTYPE html>\n<html>\n<body>\n" + "".join(r + "\n" for r in results) + "</body>\n</html>\n"
             try:
-                parsed = xmltodict.parse(wrapped)
+                parsed = xmltodict.parse(wrap_in_body(results))
             except ExpatError as e:
                 print(f"Error: cannot convert result to JSON, it is not valid XML ({e}). "
                       "Attribute names like @click or :bind are not supported by -j.", file=sys.stderr)
                 sys.exit(1)
         sys.stdout.write(json.dumps(parsed, indent=2, ensure_ascii=False) + "\n")
     elif args.body and not args.text:
-        sys.stdout.write("<!DOCTYPE html>\n<html>\n<body>\n")
-        for result in results:
-            sys.stdout.write(result + "\n")
-        sys.stdout.write("</body>\n</html>\n")
+        sys.stdout.write(wrap_in_body(results))
     else:
         # Normal output (or text-only output when -t is used)
         for result in results:

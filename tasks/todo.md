@@ -1,3 +1,14 @@
+# Rilievi residui della review (2026-11-06)
+
+- [x] XPath con risultato singolo (`string()`, `count()`, `boolean()`) → 3 test falliti prima, 32/32 passati dopo
+- [x] Duplicazioni: wrapper HTML e guardie `-eb`/`-ej` → output uguale alla 1.3.1 installata in 6 casi; i tre `if` di conflitto restano, i messaggi sono diversi
+- [x] `releasing.md`: niente `git add -A`, pytest nello script, tag con `v` → controllato con `grep`; la riscrittura resta nel commit v1.3.0, già pubblico
+- [x] Spec di `-j` in `openspec/specs/json-output/` al posto di una proposta retroattiva → `openspec validate --strict` ok
+
+## Esito
+
+- Rilascio 1.3.2 e rimozione del tag `1.3.0` (era `021d443`, stesso commit di `v1.3.0`) confermati il 2026-11-06.
+
 # Fix dalla review di v1.3.0 (2026-11-06)
 
 ## Fase 1 - test che riproducono i difetti
@@ -27,9 +38,10 @@
 - `-j` con stdout non UTF-8: invariato.
 - Versione 1.3.1 e CHANGELOG aggiornati, commit sul branch `fix-json-1.3.1`.
 
-## Domande aperte
+## Esito rilascio
 
-- Merge su `master`, tag e pubblicazione su PyPI: da decidere.
+- Merge su `master`, tag `v1.3.1`, push e PyPI fatti il 2026-11-06: https://pypi.org/project/scrape-cli/1.3.1/
+- GitHub release creata il 2026-11-06: https://github.com/aborruso/scrape-cli/releases/tag/v1.3.1
 
 # Agent-friendly CLI improvements
 
