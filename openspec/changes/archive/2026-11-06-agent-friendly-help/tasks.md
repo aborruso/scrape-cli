@@ -13,10 +13,10 @@
 ## 3. Verification
 
 - [x] 3.1 Compare the stdout of `-e`, `-a`, `-b`, `-t` and `-j` on `resources/test.html` with version 1.3.2
-- [ ] 3.2 Confirm that the tests pass on all Python versions in CI
+- [x] 3.2 Confirm that the tests pass on all Python versions in CI
 
 ## 4. Documentation and release
 
 - [x] 4.1 Update `LOG.md`
 - [x] 4.2 Bump the version and update `CHANGELOG.md`
-- [ ] 4.3 Archive this change after the release
+- [x] 4.3 Archive this change after the release

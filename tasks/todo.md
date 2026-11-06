@@ -1,6 +1,6 @@
 # Help per gli agenti (2026-11-06)
 
-Stato dei lavori in `openspec/changes/agent-friendly-help/tasks.md`.
+Rilasciato in 1.3.3 il 2026-11-06. Change archiviata in `openspec/changes/archive/`.
 
 # CI e documentazione (2026-11-06)
 
