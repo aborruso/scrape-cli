@@ -1,3 +1,9 @@
+# Migrazione OpenSpec (2026-11-06)
+
+- [x] Commit della migrazione al flusso `opsx`; tenute tutte le cartelle, perché claude, codex, opencode e copilot sono installati
+- [x] Contesto in `openspec/config.yaml`, tolto `openspec/project.md`
+- [x] Extra `dev` in `pyproject.toml`
+
 # Ripiego ISO-8859-1 (2026-11-06)
 
 - [x] Input HTML non UTF-8 senza meta tag convertito da ISO-8859-1 → 39/39 test; XML con `-r` e UTF-8 invariati; output uguale alla 1.3.3 in 5 casi.

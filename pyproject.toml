@@ -22,6 +22,9 @@ dependencies = [
     "xmltodict"
 ]
 
+[project.optional-dependencies]
+dev = ["pytest"]
+
 [project.urls]
 Homepage = "https://github.com/aborruso/scrape-cli"
 

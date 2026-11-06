@@ -2,6 +2,8 @@
 
 ## 2026-11-06
 
+- Migrazione OpenSpec al flusso `opsx`; contesto da `openspec/project.md` a `openspec/config.yaml`
+- Extra `dev` con pytest in `pyproject.toml`
 - v1.3.4: `scrape-cli` come secondo nome del comando `scrape`
 - Ripiego su ISO-8859-1 ora attivo per HTML non UTF-8 senza meta tag; era codice che non scattava mai
 - `--help` riscritto per gli agenti: output per modalità, codici di uscita, casi limite, esempi commentati (change OpenSpec `agent-friendly-help`)

@@ -1,0 +1,18 @@
+schema: spec-driven
+
+context: |
+  scrape-cli extracts HTML elements with XPath or CSS3 selectors, as text, HTML
+  or JSON. Used in pipelines and by agents, so stdout, stderr and exit codes are
+  a contract: `scrape --help` documents them and must stay true.
+
+  Tech stack: Python >=3.8, lxml, cssselect, requests, xmltodict. Single-file CLI
+  in scrape_cli/scrape.py, with argparse. Keep new dependencies to a minimum.
+
+  Conventions: errors go to stderr as one line and exit 1, with no traceback.
+  Version lives in pyproject.toml and scrape_cli/__init__.py. Keep LOG.md and
+  CHANGELOG.md updated; the release steps are in releasing.md. Branch: master.
+
+  Tests: pytest tests/, with fixtures in resources/test.html. CI runs Python
+  3.8-3.14. Write a failing test before a fix.
+
+  Language: specs, code and repository docs in English.
