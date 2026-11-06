@@ -2,6 +2,7 @@
 
 ## 2026-11-06
 
+- Gli errori con `--json-array` nominano `--json-array`, non `--json` o `-j`
 - v1.3.6 su PyPI, CI verde su Python 3.8-3.14; change `json-array-output` archiviata
 - v1.3.6: rilascio con `--json-array` e le correzioni qui sotto
 - HTML senza elementi (soli spazi o commenti): errore di una riga con codice 1, prima traceback

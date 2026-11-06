@@ -525,7 +525,7 @@ def test_json_array_rejects_conflicting_flags():
     for flags in (["-t"], ["-x"], ["-a", "href"]):
         result = run_scrape("--json-array", *flags, "-e", "a", input_data=ARRAY_HTML)
         assert result.returncode == 1
-        assert "Error:" in result.stderr
+        assert "Error: --json-array " in result.stderr
 
 
 def test_json_array_reports_clean_error_on_non_xml_attribute_name():
@@ -534,6 +534,12 @@ def test_json_array_reports_clean_error_on_non_xml_attribute_name():
     assert result.stdout == ""
     assert "Error:" in result.stderr
     assert "Traceback" not in result.stderr
+    assert "not supported by --json-array" in result.stderr
+
+
+def test_json_array_conflict_does_not_change_json_messages():
+    result = run_scrape("-j", "-t", "-e", "a", input_data=ARRAY_HTML)
+    assert "Error: --json and --text" in result.stderr
 
 
 def test_html_input_with_no_elements_reports_clean_error():

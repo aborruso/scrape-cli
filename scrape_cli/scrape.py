@@ -213,16 +213,17 @@ notes:
     args = parser.parse_args()
 
     # JSON flag is mutually exclusive with -t, -x, -a
+    json_flag = '--json-array' if args.json_array else '--json'
     if args.json_array:
         args.json = True
     if args.json and args.text:
-        print("Error: --json and --text are mutually exclusive.", file=sys.stderr)
+        print(f"Error: {json_flag} and --text are mutually exclusive.", file=sys.stderr)
         sys.exit(1)
     if args.json and args.check_existence:
-        print("Error: --json and --check-existence are mutually exclusive.", file=sys.stderr)
+        print(f"Error: {json_flag} and --check-existence are mutually exclusive.", file=sys.stderr)
         sys.exit(1)
     if args.json and args.argument:
-        print("Error: --json cannot be combined with -a/--argument.", file=sys.stderr)
+        print(f"Error: {json_flag} cannot be combined with -a/--argument.", file=sys.stderr)
         sys.exit(1)
 
     # Check that at least one expression is provided by the user (unless using -t option)
@@ -403,7 +404,7 @@ notes:
                 parsed = xmltodict.parse(wrap_in_body(results))
         except ExpatError as e:
             print(f"Error: cannot convert result to JSON, it is not valid XML ({e}). "
-                  "Attribute names like @click or :bind are not supported by -j.", file=sys.stderr)
+                  f"Attribute names like @click or :bind are not supported by {'--json-array' if args.json_array else '-j'}.", file=sys.stderr)
             sys.exit(1)
         sys.stdout.write(json.dumps(parsed, indent=2, ensure_ascii=False) + "\n")
     elif args.body and not args.text:
