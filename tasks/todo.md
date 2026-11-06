@@ -1,3 +1,7 @@
+# Help per gli agenti (2026-11-06)
+
+Stato dei lavori in `openspec/changes/agent-friendly-help/tasks.md`.
+
 # CI e documentazione (2026-11-06)
 
 - [x] Workflow pytest in `.github/workflows/tests.yml` → test locali verdi su Python 3.8-3.14, commit e push il 2026-11-06

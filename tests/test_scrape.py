@@ -203,6 +203,46 @@ def test_order_checks_ignore_filenames_and_selectors(tmp_path):
         assert "use -" not in result.stderr
 
 
+def test_invalid_xpath_reports_clean_error():
+    result = run_scrape("-e", "//[bad", input_data="<p>x</p>")
+
+    assert result.returncode == 1
+    assert "Error: invalid XPath" in result.stderr
+    assert "Traceback" not in result.stderr
+
+
+def test_unreadable_input_reports_clean_error(tmp_path):
+    result = run_scrape("-e", "h1", str(tmp_path))
+
+    assert result.returncode == 1
+    assert "Error: cannot read" in result.stderr
+    assert "Traceback" not in result.stderr
+
+
+def test_help_documents_the_contract_for_agents():
+    result = run_scrape("--help")
+
+    assert result.returncode == 0
+    for section in ("output:", "exit codes:", "notes:", "examples:"):
+        assert section in result.stdout
+
+
+def test_exit_codes_match_help():
+    html = "<h1>x</h1>"
+
+    no_match = run_scrape("-e", "//nulla", input_data=html)
+    assert (no_match.returncode, no_match.stdout) == (0, "")
+
+    not_found = run_scrape("-x", "-e", "//nulla", input_data=html)
+    assert not_found.returncode == 1
+    assert "Error" not in not_found.stderr
+
+    assert run_scrape("--bogus", input_data=html).returncode == 2
+
+    first_only = run_scrape("-x", "-e", "//nulla", "-e", "//h1", input_data=html)
+    assert first_only.returncode == 1
+
+
 def test_invalid_css_selector_fails_conversion():
     result = run_scrape(str(TEST_HTML), "-e", "div[")
 

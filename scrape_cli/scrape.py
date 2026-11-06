@@ -116,19 +116,54 @@ def is_xpath(expression):
 def main():
     # Command line argument parser definition
     parser = argparse.ArgumentParser(
-        description='Extract HTML elements using an XPath query or CSS3 selector.',
+        description=(
+            'Extract parts of an HTML page using an XPath query or CSS3 selector.\n'
+            'Reads static HTML and does not run JavaScript: content built in the\n'
+            'browser is not there. Never prompts for input.'
+        ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog='''\
 examples:
-  scrape -e "//h1" file.html                      XPath expression
-  scrape -e "h1.title" file.html                  CSS selector
-  scrape -e "//a" -a href file.html               extract attribute
-  scrape -t file.html                             extract all text
-  scrape -e "//h1" https://example.com            fetch from URL
-  cat file.html | scrape -e "//h1"                read from stdin
-  scrape -e "//h1" -x file.html                   check existence (exit 0/1)
-  scrape -be "//article" file.html                wrap output in <html><body>
-  scrape -je "//article" file.html                output as JSON (built-in)
+  scrape -e "//h1" file.html            XPath: matching elements as HTML
+  scrape -e "h1.title" file.html        CSS selector, detected automatically
+  scrape -e "//a/@href" file.html       attribute values as plain text
+  scrape -e "//a" -a href file.html     same, elements without href skipped
+  scrape -e "count(//a)" file.html      XPath function: one value (string,
+                                        number, true/false)
+  scrape -t file.html                   all body text, no script or style
+  scrape -te "//article" file.html      text of the matching elements
+  scrape -je "a" file.html              JSON
+  scrape -be "//article" file.html      wrap output in <html><body>
+  scrape -x -e "//h1" file.html         test only: exit code, no output
+  scrape -e "//h1" https://example.com  fetch from URL
+  cat file.html | scrape -e "//h1"      read from stdin
+
+output:
+  default  one result after the other, on stdout: elements as HTML, strings
+           (@attr, text(), XPath functions) as plain text
+  -e       repeated: results follow the order of the expressions
+  -j       always {"html": {"body": ...}}, where body is:
+             elements  attributes as @name, text as #text; one match of a tag
+                       is an object, several are a list
+             strings   one is a string, several are a list
+             nothing   null
+
+exit codes:
+  0  success, also when nothing matches: empty output, or null body with -j
+  1  error, with a message on stderr; with -x, no match, with stderr empty
+  2  invalid usage: unknown option or missing option value
+
+notes:
+  - No match is not an error: use -x to test for it.
+  - With short flags together, -e goes last: -be, -je, -te. As an argument on
+    its own, -eb or -ej is rejected, because -e would take "b" or "j" as value.
+  - -x evaluates only the first -e.
+  - -t with -e includes the text of any script or style inside the matches.
+  - -j fails with exit 1 on attribute names that are not valid XML, such as
+    @click or :bind. Use -e without -j on those pages.
+  - URLs: 30 s timeout, HTTP errors (4xx, 5xx) exit 1.
+  - Charset: from the meta tag, otherwise UTF-8. Other encodings need the meta
+    tag, or characters come out wrong.
 '''
     )
 
@@ -141,30 +176,34 @@ examples:
             sys.exit(1)
     # Defines the HTML input argument (can be a file, URL or stdin)
     parser.add_argument('html', nargs='?', type=str, default='',
-                        help="HTML input (file, URL or stdin, default: stdin)", metavar="HTML")
+                        help="HTML input: local file or http(s) URL. Stdin if omitted", metavar="HTML")
     # Defines the optional argument to extract from the tag
     parser.add_argument('-a', '--argument', default="",
-                        help="Argument to extract from the tag")
+                        help="Output the value of this attribute instead of the element. "
+                             "Elements without it are skipped")
     # Option to include the result within HTML and BODY tags
     parser.add_argument('-b', '--body', action='store_true', default=False,
-                        help="Include result in HTML and BODY tags")
+                        help="Wrap the output in a <!DOCTYPE html><html><body> document. "
+                             "Ignored with -t and -j")
     # Option to extract only text content
     parser.add_argument('-t', '--text', action='store_true', default=False,
-                        help="Extract only text content (useful for LLMs)")
+                        help="Output text only, with whitespace cleaned. "
+                             "Without -e, all body text except script and style")
     # Option to output structured JSON (built-in, no external xq needed)
     parser.add_argument('-j', '--json', action='store_true', default=False,
-                        help="Output result as structured JSON")
+                        help="Output structured JSON, see below. Not with -t, -x, -a")
     # Allows to specify one or more XPath or CSS3 selector expressions
     parser.add_argument('-e', '--expression', default=[], action='append',
-                        help="XPath query or CSS3 selector")
+                        help="XPath query or CSS3 selector, detected automatically. Repeatable")
     # Option to verify the existence of elements matching the expression
     parser.add_argument('-x', '--check-existence', dest='check_existence', action='store_true', default=False,
-                        help="Returns an exit value indicating existence")
+                        help="Output nothing, exit 0 if the first expression matches, 1 if not")
     # Option to avoid initial HTML parsing, useful in specific cases like CData
     parser.add_argument('-r', '--rawinput', action='store_true', default=False,
-                        help="Do not parse HTML before passing to etree (useful for CData)")
+                        help="Parse the input as strict XML instead of HTML (useful for CData). "
+                             "Malformed input is an error")
     parser.add_argument('-u', '--user-agent', default=None,
-                        help="Custom User-Agent string for HTTP requests")
+                        help="User-Agent for URL requests")
     args = parser.parse_args()
 
     # JSON flag is mutually exclusive with -t, -x, -a
@@ -207,6 +246,9 @@ examples:
                 inp = open(args.html, 'rb').read()
             except FileNotFoundError:
                 print(f"Error: The file '{args.html}' was not found.", file=sys.stderr)
+                sys.exit(1)
+            except OSError as e:
+                print(f"Error: cannot read '{args.html}': {e.strerror}", file=sys.stderr)
                 sys.exit(1)
     else:
         # If the input is from stdin
@@ -279,7 +321,11 @@ examples:
     string_results = []
     # For each expression, perform the search in the parsed HTML
     for e in expression:
-        result = document.xpath(e)
+        try:
+            result = document.xpath(e)
+        except etree.XPathError as err:
+            print(f"Error: invalid XPath expression '{e}': {err}", file=sys.stderr)
+            sys.exit(1)
 
         # If check-existence is enabled, return 0 or 1 depending on the existence of elements
         if args.check_existence:

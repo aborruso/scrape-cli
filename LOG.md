@@ -2,6 +2,8 @@
 
 ## 2026-11-06
 
+- `--help` riscritto per gli agenti: output per modalità, codici di uscita, casi limite, esempi commentati (change OpenSpec `agent-friendly-help`)
+- Errore di una riga su XPath non valido e input non leggibile, prima traceback
 - CI: `actions/checkout` e `actions/setup-python` a v7
 - CI GitHub Actions: pytest su Python 3.8-3.14
 - `-j` documentato in `manual.html` e `index.html`; requisito Python corretto a `>=3.8` nei documenti
