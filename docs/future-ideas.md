@@ -127,13 +127,34 @@ scrape -e "table" --plugin extract_pandas file.html
 
 ### 11. Resolve relative URLs
 
-Option to turn `href` and `src` into absolute URLs, based on the page URL. IANA, for example, returns `/go/rfc2606`. To evaluate against real use cases.
+Proposed in `openspec/changes/resolve-relative-urls/`.
 
-Open points:
+### 12. Several associated fields per element
 
-- how to handle `<base href>`
-- which base to use with stdin or a local file, where there is no page URL
-- which attributes to resolve, and whether `srcset` is among them
+From a list of articles, get title, link and date for each one. Separate `-e` lose the association between fields when one is missing. Possible output:
+
+```json
+[
+  {"title": "First story", "url": "/story-1"},
+  {"title": "Second story", "url": "/story-2"}
+]
+```
+
+Probably the feature with the most value. The syntax needs careful design.
+
+### 13. JSON Lines
+
+One JSON result per line, for `jq`, DuckDB and pipelines on large output. To evaluate together with idea 12.
+
+### 14. Control over HTTP requests
+
+Options for timeout, custom headers and perhaps cookies, for sites that need an `Accept-Language`, for example. Avoid duplicating curl: piping through stdin remains a good alternative.
+
+### 15. Smaller ideas to evaluate
+
+- Limit on the number of results, to explore a page without printing everything.
+- Extraction of common metadata: title, description, canonical, Open Graph and JSON-LD.
+- Optional warning when there are no results, keeping the current exit code.
 
 ## Suggested Priorities
 

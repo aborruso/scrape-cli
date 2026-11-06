@@ -4,7 +4,10 @@ Raccogliere altre modifiche prima della 1.3.7 (scelta del 2026-11-06).
 
 - [x] Errori con `--json-array` che nominano il flag → commit c692307
 - [x] Documentazione di `--json-array`: espressioni miste, `count()`, esempi `jq` → esempi eseguiti su una pagina di prova
+- [ ] URL assoluti: change `resolve-relative-urls` scritta e valida, da approvare e implementare
 - [ ] `CHANGELOG.md` e versione, al rilascio
+
+Idee da valutare in `docs/future-ideas.md`: campi associati (12), JSON Lines (13), richieste HTTP (14), idee minori (15).
 
 # Testo dopo l'elemento (2026-11-06)
 

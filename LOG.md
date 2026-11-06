@@ -2,6 +2,7 @@
 
 ## 2026-11-06
 
+- Proposta OpenSpec `resolve-relative-urls`; nuove idee in `docs/future-ideas.md`
 - `--json-array`: documentati espressioni miste, `count()` come stringa ed esempi con `jq`; URL relativi in `docs/future-ideas.md`
 - Gli errori con `--json-array` nominano `--json-array`, non `--json` o `-j`
 - v1.3.6 su PyPI, CI verde su Python 3.8-3.14; change `json-array-output` archiviata
