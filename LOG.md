@@ -2,6 +2,8 @@
 
 ## 2026-11-06
 
+- CI GitHub Actions: pytest su Python 3.8-3.14
+- `-j` documentato in `manual.html` e `index.html`; requisito Python corretto a `>=3.8` nei documenti
 - v1.3.2: fix XPath con risultato singolo
 - XPath con risultato singolo: `string()` non si spezza più per carattere, `count()` e `boolean()` non vanno più in traceback; `-x` segue il valore della funzione
 - `releasing.md`: file aggiunti per nome invece di `git add -A`, pytest nello script, tag con `v`

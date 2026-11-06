@@ -1,3 +1,8 @@
+# CI e documentazione (2026-11-06)
+
+- [x] Workflow pytest in `.github/workflows/tests.yml` → test locali verdi su Python 3.8-3.14, commit e push il 2026-11-06
+- [x] `-j` in `manual.html` e `index.html`, requisito Python `>=3.8` nei documenti
+
 # Rilievi residui della review (2026-11-06)
 
 - [x] XPath con risultato singolo (`string()`, `count()`, `boolean()`) → 3 test falliti prima, 32/32 passati dopo

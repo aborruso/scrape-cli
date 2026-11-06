@@ -533,6 +533,46 @@ Madrid</pre>
       </div>
     </div>
 
+    <!-- 11 -->
+    <div class="card rounded-xl overflow-hidden">
+      <div class="px-5 py-3 border-b flex items-center gap-3" style="background:rgba(255,255,255,0.02);border-color:#1a2433;">
+        <span class="font-mono text-xs font-bold" style="color:var(--green);">11</span>
+        <span class="badge-css text-xs px-2 py-0.5 rounded font-mono">CSS</span>
+        <span class="font-semibold text-sm text-white">Output structured JSON</span>
+      </div>
+      <div class="p-5 grid md:grid-cols-3 gap-4">
+        <div>
+          <p class="section-label mb-2">Objective</p>
+          <p class="text-sm" style="color:#94a3b8;">Convert the matched elements to JSON with <code class="font-mono text-xs" style="color:var(--green);">-j</code>, with no external tools. Attributes become <code class="font-mono text-xs" style="color:var(--green);">@name</code> and text becomes <code class="font-mono text-xs" style="color:var(--green);">#text</code>. Expressions that return only strings, such as <code class="font-mono text-xs" style="color:var(--green);">//a/@href</code>, give a string or an array in <code class="font-mono text-xs" style="color:var(--green);">body</code>. Cannot be combined with <code class="font-mono text-xs" style="color:var(--green);">-t</code>, <code class="font-mono text-xs" style="color:var(--green);">-x</code> or <code class="font-mono text-xs" style="color:var(--green);">-a</code>.</p>
+        </div>
+        <div>
+          <p class="section-label mb-2">Command</p>
+          <div class="code-block p-3 flex items-start justify-between gap-2">
+            <pre class="font-mono text-xs" style="color:#cbd5e1;">scrape \
+  -je <span style="color:#fbbf24;">"a.external-link"</span> \
+  resources/test.html</pre>
+            <button onclick="copyCode(this,&quot;scrape -je &quot;a.external-link&quot; resources/test.html&quot;)" class="font-mono text-xs px-2 py-1 rounded border flex-shrink-0" style="color:#64748b;border-color:#2d3f55;">Copy</button>
+          </div>
+        </div>
+        <div>
+          <p class="section-label mb-2">Output</p>
+          <div class="code-block p-3">
+            <pre class="font-mono text-xs" style="color:#4ade80;">{
+  "html": {
+    "body": {
+      "a": {
+        "@href": "https://example.com",
+        "@class": "external-link",
+        "#text": "Example Link"
+      }
+    }
+  }
+}</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </section>
 

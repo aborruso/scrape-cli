@@ -12,7 +12,7 @@
 
 ## Tech Stack
 
-- Python >=3.6
+- Python >=3.8
 - lxml - HTML/XML parsing and XPath evaluation
 - cssselect - CSS selector to XPath translation
 - requests - HTTP client for URL fetching
@@ -69,7 +69,7 @@
 
 ## Important Constraints
 
-- Python >=3.6 required for compatibility
+- Python >=3.8 required for compatibility
 - Requires valid HTML input (uses lxml's error recovery)
 - XPath/CSS selector must be valid syntax
 - `-be` and `-je` flag order requirement (not `-eb` or `-ej`)
