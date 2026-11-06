@@ -2,6 +2,8 @@
 
 ## 2026-11-06
 
+- `--row` e `--field`: un oggetto JSON per elemento, con le stesse chiavi; `--jsonl`: un valore JSON per riga (change OpenSpec `row-field-extraction`)
+- `./h2` ora è riconosciuto come XPath, prima dava un errore CSS
 - Proposta OpenSpec `row-field-extraction`: campi associati con `--row` e `--field`, `--jsonl`
 - `--absolute-urls` e `--base-url`: `href` e `src` assoluti in output, con `<base href>` (change OpenSpec `resolve-relative-urls`)
 - Proposta OpenSpec `resolve-relative-urls`; nuove idee in `docs/future-ideas.md`

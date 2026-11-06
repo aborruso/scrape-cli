@@ -315,6 +315,47 @@ Some notes on the commands:
 - `-t` to extract only text content (useful for LLMs and text processing)
 
 
+### Several fields per element
+
+Separate `-e` expressions lose the link between fields: if an article has no date, every following date ends up on the wrong article. Use `--row` to select the elements, and one `--field NAME=EXPR` for each value, relative to the row:
+
+```bash
+scrape --row "article" --field "title=h2" --field "url=.//a/@href" --field "date=time/@datetime" page.html
+```
+
+```json
+[
+  {"title": "First story", "url": "/one", "date": "2026-01-01"},
+  {"title": "Second story", "url": "/two", "date": null}
+]
+```
+
+- Every object has the same keys, and every value is a string or `null`. `null` means no match, `""` a match with no text.
+- A field gives only its first match. Elements give their cleaned text, and XPath functions a string.
+- Field expressions are XPath or CSS, as with `-e`. Write attributes as `.//a/@href`: `a/@href` looks among direct children only, and `//a` is refused because it would read the whole document. In functions, write `string(.//h2)`.
+- `--absolute-urls` and `--base-url` apply to `href` and `src` fields.
+- `--row` cannot be combined with `-e`, `-t`, `-x`, `-a`, `-b`, `-j` or `--json-array`.
+
+### JSON Lines
+
+Use `--jsonl` to get one JSON value per line: the objects of `--row`, or otherwise the items of `--json-array`. With no results the output is empty. It cannot be combined with `-t`, `-x`, `-a`, `-b` or `-j`.
+
+```bash
+scrape --jsonl --row "article" --field "title=h2" --field "date=time/@datetime" page.html
+# {"title": "First story", "date": "2026-01-01"}
+# {"title": "Second story", "date": null}
+
+# Articles with no date, with jq
+scrape --jsonl --row "article" --field "title=h2" --field "date=time/@datetime" page.html \
+  | jq -r 'select(.date == null) | .title'
+
+# Query with DuckDB
+scrape --jsonl --row "article" --field "title=h2" --field "date=time/@datetime" page.html \
+  | duckdb -c "select title, date from read_json('/dev/stdin', format='newline_delimited')"
+```
+
+The whole page is read and the output built in memory: `--jsonl` changes the format, not the memory use.
+
 ### Absolute URLs
 
 Links and images often have relative values. Use `--absolute-urls` to get absolute `href` and `src` values, in every output mode except `-t`:

@@ -140,11 +140,11 @@ From a list of articles, get title, link and date for each one. Separate `-e` lo
 ]
 ```
 
-Proposed in `openspec/changes/row-field-extraction/`.
+Implemented in `openspec/changes/row-field-extraction/`, to be released. A field gives only its first match: fields with several values could get their own syntax.
 
 ### 13. JSON Lines
 
-One JSON result per line, for `jq`, DuckDB and pipelines on large output. Proposed in `openspec/changes/row-field-extraction/`.
+One JSON result per line, for `jq`, DuckDB and pipelines on large output. Implemented in `openspec/changes/row-field-extraction/`, to be released. It does not stream.
 
 ### 14. Control over HTTP requests
 

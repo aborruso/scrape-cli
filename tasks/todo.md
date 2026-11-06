@@ -5,12 +5,12 @@ Raccogliere altre modifiche prima della 1.3.7 (scelta del 2026-11-06).
 - [x] Errori con `--json-array` che nominano il flag → commit c692307
 - [x] Documentazione di `--json-array`: espressioni miste, `count()`, esempi `jq` → esempi eseguiti su una pagina di prova
 - [x] URL assoluti: change `resolve-relative-urls` implementata → 77 test, output senza flag uguale alla 1.3.6, prova reale su IANA
-- [ ] Campi associati e JSON Lines: change `row-field-extraction` scritta e valida, da approvare e implementare
+- [x] Campi associati e JSON Lines: change `row-field-extraction` implementata → 101 test, output senza flag uguale alla 1.3.6, prove reali su Hacker News e python.org, esempi `jq` e DuckDB eseguiti
 - [ ] `CHANGELOG.md` e versione, al rilascio
 
 Idee da valutare in `docs/future-ideas.md`: richieste HTTP (14), idee minori (15).
 
-Domande aperte sulla change `row-field-extraction`: primo risultato per campo? `--jsonl` nella stessa change? nomi dei flag?
+Scelte confermate per `row-field-extraction`: primo risultato per campo, `--jsonl` nella stessa change, nomi `--row`, `--field`, `--jsonl`.
 
 # Testo dopo l'elemento (2026-11-06)
 

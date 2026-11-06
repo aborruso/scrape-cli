@@ -278,7 +278,7 @@ def test_help_documents_the_contract_for_agents():
     result = run_scrape("--help")
 
     assert result.returncode == 0
-    for section in ("output:", "exit codes:", "notes:", "examples:", "--json-array", "--base-url"):
+    for section in ("output:", "exit codes:", "notes:", "examples:", "--json-array", "--base-url", "--row", "--field", "--jsonl"):
         assert section in result.stdout
 
 
@@ -707,3 +707,156 @@ def test_absolute_urls_ignored_with_text_and_check_existence():
     assert result.returncode == 0
     assert "testo" in result.stdout
     assert run_scrape("--absolute-urls", "-x", "-e", "a", input_data=URLS_HTML).returncode == 0
+
+
+ROWS_HTML = (
+    '<html><body>'
+    '<article><h2><a href="/1">Uno è</a></h2> dopo <time datetime="2026-01-01">gen</time>'
+    '<a class="tag">t1</a><a class="tag">t2</a></article>'
+    '<article><h2><a href="/2">Due</a></h2></article>'
+    '<article><h2></h2></article>'
+    '<section>fuori</section>'
+    '</body></html>'
+)
+ROW_FIELDS = ["--row", "article", "--field", "title=h2", "--field", "url=.//a/@href", "--field", "date=time/@datetime"]
+
+
+def rows(*args, input_data=ROWS_HTML):
+    result = run_scrape(*args, input_data=input_data)
+    assert result.returncode == 0, result.stderr
+    return json.loads(result.stdout)
+
+
+def rows_error(*args, input_data=ROWS_HTML):
+    result = run_scrape(*args, input_data=input_data)
+    assert result.returncode == 1, result.stdout
+    assert result.stdout == ""
+    assert "Error" in result.stderr
+    assert "Traceback" not in result.stderr
+    return result.stderr
+
+
+def test_row_fields_stay_together_when_one_is_missing():
+    assert rows(*ROW_FIELDS) == [
+        {"title": "Uno è", "url": "/1", "date": "2026-01-01"},
+        {"title": "Due", "url": "/2", "date": None},
+        {"title": "", "url": None, "date": None},
+    ]
+
+
+def test_row_keys_follow_the_order_of_the_fields():
+    assert list(rows("--row", "article", "--field", "b=h2", "--field", "a=time")[0]) == ["b", "a"]
+
+
+def test_row_no_rows():
+    assert rows("--row", "aside", "--field", "t=h2") == []
+
+
+def test_row_with_no_matching_field_is_kept():
+    assert rows("--row", "section", "--field", "t=h2") == [{"t": None}]
+
+
+def test_row_field_takes_the_first_match():
+    assert rows("--row", "article", "--field", "t=a.tag")[0] == {"t": "t1"}
+
+
+def test_row_field_with_function_gives_string():
+    assert rows("--row", "article", "--field", "n=count(.//a)")[0] == {"n": "3"}
+
+
+def test_row_field_text_leaves_out_text_after_element():
+    assert rows("--row", "article", "--field", "t=h2")[0] == {"t": "Uno è"}
+
+
+def test_row_field_expression_with_equals_sign():
+    assert rows("--row", "article", "--field", 't=a[href="/2"]')[1] == {"t": "Due"}
+
+
+def test_row_field_skips_whitespace_only_text():
+    html = "<article>\n  <b>x</b> testo</article>"
+    assert rows("--row", "article", "--field", "t=text()", input_data=html) == [{"t": "testo"}]
+
+
+def test_row_field_empty_attribute_is_empty_string():
+    assert rows("--row", "p", "--field", "t=a/@href", input_data='<p><a href="">l</a></p>') == [{"t": ""}]
+
+
+def test_row_field_with_absolute_urls():
+    result = rows("--base-url", "https://e.org/", *ROW_FIELDS)
+    assert result[0]["url"] == "https://e.org/1"
+    assert result[0]["date"] == "2026-01-01"
+
+
+def test_row_with_rawinput():
+    xml = "<rss><item><title>a</title><link>l</link></item></rss>"
+    assert rows("-r", "--row", "item", "--field", "t=title", "--field", "l=link", input_data=xml) == [
+        {"t": "a", "l": "l"}
+    ]
+
+
+def test_jsonl_rows():
+    result = run_scrape("--jsonl", *ROW_FIELDS, input_data=ROWS_HTML)
+    lines = result.stdout.splitlines()
+    assert len(lines) == 3
+    assert json.loads(lines[1]) == {"title": "Due", "url": "/2", "date": None}
+    assert "è" in lines[0]
+
+
+def test_jsonl_items_without_row():
+    for flags in (["--jsonl"], ["--jsonl", "--json-array"]):
+        result = run_scrape(*flags, "-e", "//a/@href", input_data=ROWS_HTML)
+        assert [json.loads(line) for line in result.stdout.splitlines()] == ["/1", "/2"]
+
+
+def test_jsonl_no_results():
+    for args in (["--row", "aside", "--field", "t=h2"], ["-e", "aside"]):
+        result = run_scrape("--jsonl", *args, input_data=ROWS_HTML)
+        assert result.returncode == 0
+        assert result.stdout == ""
+
+
+def test_is_xpath_recognizes_leading_dot_slash():
+    assert is_xpath("./body/h1") is True
+    result = run_scrape("-e", "./body/h1", input_data="<html><body><h1>t</h1></body></html>")
+    assert result.returncode == 0
+    assert "<h1>t</h1>" in result.stdout
+
+
+def test_row_and_field_need_each_other():
+    rows_error("--field", "t=h2")
+    rows_error("--row", "article")
+
+
+def test_row_rejects_other_output_modes():
+    for flags in (["-e", "a"], ["-t"], ["-x"], ["-a", "href"], ["-b"], ["-j"], ["--json-array"]):
+        rows_error(*ROW_FIELDS, *flags)
+
+
+def test_row_rejects_malformed_fields():
+    for field in ("title", "=h2", "title=", " =h2"):
+        assert field.strip() in rows_error("--row", "article", "--field", field)
+
+
+def test_row_rejects_repeated_names():
+    assert "title" in rows_error("--row", "article", "--field", "title=h2", "--field", "title=h3")
+
+
+def test_row_rejects_absolute_xpath_in_field():
+    for expression in ("//h2", "/html", "(//h2)[1]"):
+        assert ".//" in rows_error("--row", "article", "--field", f"t={expression}")
+
+
+def test_row_must_select_elements():
+    rows_error("--row", "//a/@href", "--field", "t=h2")
+    rows_error("--row", "count(//a)", "--field", "t=h2")
+
+
+def test_row_rejects_invalid_expressions():
+    rows_error("--row", "//[", "--field", "t=h2")
+    rows_error("--row", "article", "--field", "t=.//[")
+    rows_error("--row", "article", "--field", "t=a..b!")
+
+
+def test_jsonl_rejects_other_output_modes():
+    for flags in (["-t"], ["-x"], ["-a", "href"], ["-b"], ["-j"]):
+        assert "--jsonl" in rows_error("--jsonl", "-e", "a", *flags)

@@ -105,6 +105,56 @@ def with_absolute_urls(el, base):
     return el
 
 
+def evaluate(context, expression):
+    try:
+        return context.xpath(expression)
+    except etree.XPathError as err:
+        print(f"Error: invalid XPath expression '{expression}': {err}", file=sys.stderr)
+        sys.exit(1)
+
+
+def parse_fields(fields):
+    """Turn NAME=EXPR strings into {name: XPath}, exiting on invalid ones."""
+    parsed = {}
+    for field in fields:
+        name, _, expression = (part.strip() for part in field.partition('='))
+        if not name or not expression:
+            print(f"Error: --field must be NAME=EXPR, got '{field}'.", file=sys.stderr)
+            sys.exit(1)
+        if name in parsed:
+            print(f"Error: repeated --field name '{name}'.", file=sys.stderr)
+            sys.exit(1)
+        if expression.startswith(('/', '(/')):
+            print(f"Error: --field '{field}' reads the whole document on each row: "
+                  "start the expression with .// instead.", file=sys.stderr)
+            sys.exit(1)
+        parsed[name] = expression if is_xpath(expression) else convert_css_to_xpath(expression)
+    return parsed
+
+
+def field_value(row, expression, base):
+    """String form of the first match in the row, or None if there is none."""
+    for item in xpath_result_items(evaluate(row, expression)):
+        if isinstance(item, str):
+            is_attribute = getattr(item, 'is_attribute', False)
+            if base and is_attribute and item.attrname in ('href', 'src'):
+                return resolve_url(base, item)
+            if is_attribute or item.strip():
+                return item.strip()
+        elif isinstance(item.tag, str):  # not a comment or processing instruction
+            return clean_text(''.join(item.itertext()))
+    return None
+
+
+def write_json(value, lines):
+    """Print a JSON value, or with lines one item of the list per line."""
+    if lines:
+        for item in value:
+            sys.stdout.write(json.dumps(item, ensure_ascii=False) + "\n")
+    else:
+        sys.stdout.write(json.dumps(value, indent=2, ensure_ascii=False) + "\n")
+
+
 def wrap_in_body(results):
     return "<!DOCTYPE html>\n<html>\n<body>\n" + "".join(r + "\n" for r in results) + "</body>\n</html>\n"
 
@@ -122,7 +172,7 @@ def is_xpath(expression):
     expr = expression.strip()
 
     # Direct XPath patterns
-    if expr.startswith('/') or expr.startswith('//'):
+    if expr.startswith('/') or expr.startswith('//') or expr.startswith('./'):
         return True
     if '::' in expr:
         return True
@@ -176,6 +226,10 @@ examples:
                                         absolute href and src values
   curl -s https://example.org/ | scrape --base-url https://example.org/ -e "a"
                                         same, for stdin or a local file
+  scrape --row "article" --field "title=h2" --field "url=.//a/@href" file.html
+                                        one JSON object per article
+  scrape --jsonl -e "//a/@href" file.html
+                                        one JSON value per line
   scrape -be "//article" file.html      wrap output in <html><body>
   scrape -x -e "//h1" file.html         test only: exit code, no output
   scrape -e "//h1" https://example.com  fetch from URL
@@ -193,6 +247,12 @@ output:
   --json-array  always a flat list, one item per result, in expression order:
              [] for nothing, strings as strings, elements as {"tag": ...},
              function values as strings: count() gives "2"
+  --row    a list with one object per row, one key per --field in the order
+           given, each value a string or null (no match); "" is a match with
+           no text. Elements give their cleaned text. Rows with no match in
+           any field stay in the list.
+  --jsonl  one JSON value per line: the objects of --row, otherwise the items
+           of --json-array. Nothing at all when there are no results.
 
 exit codes:
   0  success, also when nothing matches: empty output, or null body with -j
@@ -208,6 +268,12 @@ notes:
   - -t with -e includes the text of any script or style inside the matches.
   - -j fails with exit 1 on attribute names that are not valid XML, such as
     @click or :bind. Use -e without -j on those pages.
+  - --field is relative to the row and gives only the first match. Write
+    .//a/@href: a/@href looks among direct children only, and //a is refused
+    because it would read the whole document. In functions, write
+    string(.//h2): string(//h2) is not refused and reads the whole document.
+  - --row is not allowed with -e, -t, -x, -a, -b, -j, --json-array.
+    --jsonl is not allowed with -t, -x, -a, -b, -j.
   - URLs: 30 s timeout, HTTP errors (4xx, 5xx) exit 1.
   - --absolute-urls changes href and src in the output, not in selection:
     a[href^="/"] still matches. Base: the first <base href>, against the page
@@ -249,6 +315,12 @@ notes:
                         help="Output href and src values as absolute URLs, see notes")
     parser.add_argument('--base-url', default=None, metavar="URL",
                         help="Page URL for stdin and local files. Implies --absolute-urls")
+    parser.add_argument('--row', default=None, metavar="EXPR",
+                        help="Select the elements that give one JSON object each. Needs --field")
+    parser.add_argument('--field', default=[], action='append', metavar="NAME=EXPR",
+                        help="Value of a key in each --row object, relative to the row. Repeatable")
+    parser.add_argument('--jsonl', action='store_true', default=False,
+                        help="Output one JSON value per line, see below. Implies --json-array without --row")
     # Allows to specify one or more XPath or CSS3 selector expressions
     parser.add_argument('-e', '--expression', default=[], action='append',
                         help="XPath query or CSS3 selector, detected automatically. Repeatable")
@@ -262,6 +334,22 @@ notes:
     parser.add_argument('-u', '--user-agent', default=None,
                         help="User-Agent for URL requests")
     args = parser.parse_args()
+
+    if args.jsonl and (args.text or args.check_existence or args.argument or args.body or args.json):
+        print("Error: --jsonl cannot be combined with -t, -x, -a, -b or -j.", file=sys.stderr)
+        sys.exit(1)
+    if bool(args.row) != bool(args.field):
+        print("Error: --row and --field must be used together.", file=sys.stderr)
+        sys.exit(1)
+    fields = {}
+    if args.row:
+        if (args.expression or args.text or args.check_existence or args.argument
+                or args.body or args.json or args.json_array):
+            print("Error: --row cannot be combined with -e, -t, -x, -a, -b, -j or --json-array.", file=sys.stderr)
+            sys.exit(1)
+        fields = parse_fields(args.field)
+    elif args.jsonl:
+        args.json_array = True
 
     # JSON flag is mutually exclusive with -t, -x, -a
     json_flag = '--json-array' if args.json_array else '--json'
@@ -286,7 +374,7 @@ notes:
         sys.exit(1)
 
     # Check that at least one expression is provided by the user (unless using -t option)
-    if not args.expression and not args.text:
+    if not args.expression and not args.text and not args.row:
         print(
             "Error: no expression specified. Use -e \"//selector\" or -t.\n"
             "  scrape -e \"//h1\" file.html\n"
@@ -401,17 +489,23 @@ notes:
                   "or a page with an absolute <base href>.", file=sys.stderr)
             sys.exit(1)
 
+    if args.row:
+        row_expression = args.row if is_xpath(args.row) else convert_css_to_xpath(args.row)
+        rows = xpath_result_items(evaluate(document, row_expression))
+        if any(isinstance(row, str) or not isinstance(row.tag, str) for row in rows):
+            print(f"Error: --row must select elements, not values: '{args.row}'.", file=sys.stderr)
+            sys.exit(1)
+        write_json([{name: field_value(row, expression, base) for name, expression in fields.items()}
+                    for row in rows], args.jsonl)
+        return
+
     results = []
     string_results = []
     # --json-array items: str for strings, bytes for element markup
     array_items = []
     # For each expression, perform the search in the parsed HTML
     for e in expression:
-        try:
-            result = document.xpath(e)
-        except etree.XPathError as err:
-            print(f"Error: invalid XPath expression '{e}': {err}", file=sys.stderr)
-            sys.exit(1)
+        result = evaluate(document, e)
 
         # If check-existence is enabled, return 0 or 1 depending on the existence of elements
         if args.check_existence:
@@ -482,7 +576,7 @@ notes:
             print(f"Error: cannot convert result to JSON, it is not valid XML ({e}). "
                   f"Attribute names like @click or :bind are not supported by {'--json-array' if args.json_array else '-j'}.", file=sys.stderr)
             sys.exit(1)
-        sys.stdout.write(json.dumps(parsed, indent=2, ensure_ascii=False) + "\n")
+        write_json(parsed, args.jsonl)
     elif args.body and not args.text:
         sys.stdout.write(wrap_in_body(results))
     else:
