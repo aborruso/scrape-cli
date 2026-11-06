@@ -188,6 +188,12 @@ def test_short_check_existence_flag_x():
     assert missing.returncode == 1
 
 
+def test_rawinput_malformed_xml_reports_xml_error():
+    result = run_scrape("-r", "-e", "//a", input_data="<root><a></root>")
+    assert result.returncode == 1
+    assert "Error parsing XML: " in result.stderr
+
+
 def test_rawinput_parses_xml_without_html_parser():
     xml_data = "<root><item>one</item><item>two</item></root>"
     result = run_scrape("-e", "//item[2]/text()", "-r", input_data=xml_data)

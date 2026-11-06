@@ -314,8 +314,8 @@ notes:
                     inp = inp.decode('iso-8859-1').encode('utf-8')
             document = etree.fromstring(inp, html_parser)
     except (etree.XMLSyntaxError, UnicodeDecodeError) as e:
-        # Print an error in case of syntax issues in the HTML
-        print(f"Error parsing HTML: {e}", file=sys.stderr)
+        # Print an error in case of syntax issues in the input
+        print(f"Error parsing {'XML' if args.rawinput else 'HTML'}: {e}", file=sys.stderr)
         sys.exit(1)
 
     results = []

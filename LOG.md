@@ -2,6 +2,7 @@
 
 ## 2026-11-06
 
+- Con `-r` su XML non valido il messaggio ora dice `Error parsing XML:`
 - v1.3.5: rilascio con la correzione Windows-1252
 - HTML non UTF-8 senza meta tag: prima Windows-1252, poi ISO-8859-1 (issue #29)
 - Migrazione OpenSpec al flusso `opsx`; contesto da `openspec/project.md` a `openspec/config.yaml`
