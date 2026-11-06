@@ -356,7 +356,7 @@ notes:
                 text = clean_text(text)
             elif not args.argument:
                 # If no attribute is specified, return the element as HTML string
-                text = etree.tostring(el, pretty_print=True).decode('utf-8')
+                text = etree.tostring(el, pretty_print=True, with_tail=False).decode('utf-8')
             else:
                 # Otherwise, extract the specified attribute
                 text = el.get(args.argument)

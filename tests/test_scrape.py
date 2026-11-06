@@ -450,3 +450,21 @@ def test_url_input_downloads_and_extracts_text():
 
     assert result.returncode == 0
     assert result.stdout.strip() == "Welcome to the Test Page"
+
+
+TAIL_HTML = '<p>Prima <a href="/x">Link</a> dopo.</p>'
+
+
+def test_text_after_element_stays_out_of_html_output():
+    result = run_scrape("-e", "//a", input_data=TAIL_HTML)
+    assert result.stdout.strip() == '<a href="/x">Link</a>'
+
+
+def test_text_after_element_stays_out_of_body_output():
+    result = run_scrape("-be", "//a", input_data=TAIL_HTML)
+    assert "dopo" not in result.stdout
+
+
+def test_text_after_element_stays_out_of_json_output():
+    result = run_scrape("-je", "//a", input_data=TAIL_HTML)
+    assert json.loads(result.stdout) == {"html": {"body": {"a": {"@href": "/x", "#text": "Link"}}}}
