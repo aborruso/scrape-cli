@@ -125,6 +125,16 @@ scrape -e "table" --plugin extract_pandas file.html
 - **Dry-run mode**: `--dry-run` validates query without executing
 - **Examples generator**: `scrape --examples URL` suggests queries
 
+### 11. Resolve relative URLs
+
+Option to turn `href` and `src` into absolute URLs, based on the page URL. IANA, for example, returns `/go/rfc2606`. To evaluate against real use cases.
+
+Open points:
+
+- how to handle `<base href>`
+- which base to use with stdin or a local file, where there is no page URL
+- which attributes to resolve, and whether `srcset` is among them
+
 ## Suggested Priorities
 
 ### v1.2.1 (quick wins)

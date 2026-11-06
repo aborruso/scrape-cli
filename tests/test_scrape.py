@@ -504,6 +504,10 @@ def test_json_array_keeps_the_order_of_the_expressions():
     assert json_array("b", "//a/@href") == [{"b": "tre"}, "x", "y"]
 
 
+def test_json_array_mixed_expressions_keep_order_and_forms():
+    assert json_array("b", "//a/@href", "count(//p)") == [{"b": "tre"}, "x", "y", "2"]
+
+
 def test_json_array_element_item():
     assert json_array("a")[0] == {"a": {"@href": "x", "#text": "l"}}
 

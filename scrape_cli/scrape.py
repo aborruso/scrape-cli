@@ -149,7 +149,8 @@ output:
              strings   one is a string, several are a list
              nothing   null
   --json-array  always a flat list, one item per result, in expression order:
-             [] for nothing, strings as strings, elements as {"tag": ...}
+             [] for nothing, strings as strings, elements as {"tag": ...},
+             function values as strings: count() gives "2"
 
 exit codes:
   0  success, also when nothing matches: empty output, or null body with -j

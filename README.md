@@ -270,6 +270,37 @@ Output:
 
 Use `--json-array` when a script needs one shape for any number of results. The output is a flat list with no `html`/`body` envelope, one item per result, in the order of the expressions. Strings stay strings and elements become objects with the tag as key, so `scrape --json-array -e "//a/@href" -e "b"` gives `["x", "y", {"b": "tre"}]`, and no results give `[]`. It implies `-j` and has the same limits.
 
+With mixed expressions, each result keeps its own form and its place in the order of the expressions. XPath function values are strings, so `count()` gives `"2"`, not `2`:
+
+```bash
+scrape --json-array -e "h1" -e "//a/@href" -e "count(//a)" page.html
+# [{"h1": "News"}, "/one", "/two", "2"]
+```
+
+The list shape makes `jq` pipelines simple, with the same code for zero, one or many results:
+
+```bash
+# Count the results
+scrape --json-array -e "a" page.html | jq 'length'
+
+# Loop over attribute values; with no results, the loop does not run
+scrape --json-array -e "//a/@href" page.html | jq -r '.[]' | while read -r href; do
+  echo "got $href"
+done
+
+# Read fields of each element, as TSV
+scrape --json-array -e "a" page.html | jq -r '.[].a | [.["@href"], .["#text"]] | @tsv'
+
+# Filter elements by attribute
+scrape --json-array -e "a" page.html | jq -c '.[] | select(.a["@class"] == "ext")'
+
+# With mixed expressions, keep only the strings
+scrape --json-array -e "h1" -e "//a/@href" page.html | jq -c 'map(strings)'
+
+# Turn a count() into a number
+scrape --json-array -e "count(//a)" page.html | jq '.[0] | tonumber'
+```
+
 `-j` is mutually exclusive with `-t`, `-x` (`--check-existence`) and `-a` (`--argument`).
 
 `-j` exits with an error when a matched element has an attribute name that is not valid XML, such as `@click` or `:bind`.

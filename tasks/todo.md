@@ -1,3 +1,11 @@
+# Prossimo rilascio
+
+Raccogliere altre modifiche prima della 1.3.7 (scelta del 2026-11-06).
+
+- [x] Errori con `--json-array` che nominano il flag → commit c692307
+- [x] Documentazione di `--json-array`: espressioni miste, `count()`, esempi `jq` → esempi eseguiti su una pagina di prova
+- [ ] `CHANGELOG.md` e versione, al rilascio
+
 # Testo dopo l'elemento (2026-11-06)
 
 - [x] `-e`, `-b` e `-j` non includono più il testo dopo l'elemento selezionato → riprodotto su 1.3.5 installata, test falliti prima del fix, verdi dopo
