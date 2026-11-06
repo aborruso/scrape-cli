@@ -158,6 +158,7 @@ exit codes:
 
 notes:
   - No match is not an error: use -x to test for it.
+  - HTML with no elements, such as only spaces or comments, exits 1.
   - With short flags together, -e goes last: -be, -je, -te. As an argument on
     its own, -eb or -ej is rejected, because -e would take "b" or "j" as value.
   - -x evaluates only the first -e.
@@ -323,6 +324,10 @@ notes:
     except (etree.XMLSyntaxError, UnicodeDecodeError) as e:
         # Print an error in case of syntax issues in the input
         print(f"Error parsing {'XML' if args.rawinput else 'HTML'}: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    if document is None:
+        print("Error parsing HTML: no elements found in the input", file=sys.stderr)
         sys.exit(1)
 
     results = []

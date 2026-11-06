@@ -534,3 +534,13 @@ def test_json_array_reports_clean_error_on_non_xml_attribute_name():
     assert result.stdout == ""
     assert "Error:" in result.stderr
     assert "Traceback" not in result.stderr
+
+
+def test_html_input_with_no_elements_reports_clean_error():
+    for html in (" ", "<!-- c -->", '<?xml version="1.0"?>'):
+        for flags in (["-e", "//a"], ["-t"], ["-j", "-e", "//a"], ["--json-array", "-e", "//a"]):
+            result = run_scrape(*flags, input_data=html)
+            assert result.returncode == 1
+            assert result.stdout == ""
+            assert "Error parsing HTML: no elements found" in result.stderr
+            assert "Traceback" not in result.stderr

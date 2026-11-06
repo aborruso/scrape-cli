@@ -1,3 +1,35 @@
+# Testo dopo l'elemento (2026-11-06)
+
+- [x] `-e`, `-b` e `-j` non includono più il testo dopo l'elemento selezionato → riprodotto su 1.3.5 installata, test falliti prima del fix, verdi dopo
+
+# Opzione --json-array (2026-11-06)
+
+Scelte confermate il 2026-11-06: lista piatta, tag come chiave, nome `--json-array`. Change in `openspec/changes/json-array-output/`.
+
+Output previsto: lista piatta in cima al JSON, senza `html`/`body`, un elemento per risultato, nell'ordine delle espressioni. Le stringhe restano stringhe, gli elementi diventano oggetti con il tag come chiave.
+
+```
+scrape --json-array -e '//a/@href' -e b page.html
+["x", "y", {"b": "tre"}]
+```
+
+Fase 1, spec
+- [x] Change OpenSpec con `/opsx:propose`, delta su `json-output` → `openspec validate --strict` passato
+
+Fase 2, codice e test
+- [x] Test prima del codice: zero, uno e più risultati danno `[]`, `[r]`, `[r1, r2]`; elementi e stringhe mescolati in ordine; testo dopo un elemento non incluso → verify: i test nuovi falliscono
+- [x] `--json-array` implica `-j` e ha gli stessi vincoli con `-t`, `-x`, `-a` → verify: test verdi
+- [x] Forma di `-j` invariata → test esistenti di `-j` verdi senza modifiche
+
+Fase 3, documenti
+- [x] `--help`, `README.md`, `manual.html`, `LOG.md` → test sull'help verde
+- [x] `CHANGELOG.md` e versione 1.3.6
+
+# Messaggio di errore con -r (2026-11-06)
+
+- [x] `Error parsing XML:` con `-r` → test nuovo fallito prima del fix, suite verde dopo
+- [x] Input HTML di soli spazi o commenti: errore di una riga con codice 1 → test fallito prima del fix, verde dopo
+
 # Issue 29, Windows-1252 senza meta tag (2026-11-06)
 
 - [x] Prima Windows-1252, poi ISO-8859-1 → test nuovi falliti prima del fix, verdi dopo
