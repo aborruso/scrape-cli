@@ -4,6 +4,8 @@
 
 # Opzione --json-array (2026-11-06)
 
+Rilasciato in 1.3.6 il 2026-11-06. Change archiviata in `openspec/changes/archive/`.
+
 Scelte confermate il 2026-11-06: lista piatta, tag come chiave, nome `--json-array`. Change in `openspec/changes/json-array-output/`.
 
 Output previsto: lista piatta in cima al JSON, senza `html`/`body`, un elemento per risultato, nell'ordine delle espressioni. Le stringhe restano stringhe, gli elementi diventano oggetti con il tag come chiave.
