@@ -133,6 +133,7 @@ examples:
   scrape -t file.html                   all body text, no script or style
   scrape -te "//article" file.html      text of the matching elements
   scrape -je "a" file.html              JSON
+  scrape --json-array -e "a" file.html  JSON, always a flat list
   scrape -be "//article" file.html      wrap output in <html><body>
   scrape -x -e "//h1" file.html         test only: exit code, no output
   scrape -e "//h1" https://example.com  fetch from URL
@@ -147,6 +148,8 @@ output:
                        is an object, several are a list
              strings   one is a string, several are a list
              nothing   null
+  --json-array  always a flat list, one item per result, in expression order:
+             [] for nothing, strings as strings, elements as {"tag": ...}
 
 exit codes:
   0  success, also when nothing matches: empty output, or null body with -j
@@ -192,6 +195,8 @@ notes:
     # Option to output structured JSON (built-in, no external xq needed)
     parser.add_argument('-j', '--json', action='store_true', default=False,
                         help="Output structured JSON, see below. Not with -t, -x, -a")
+    parser.add_argument('--json-array', action='store_true', default=False,
+                        help="Output JSON as a flat list, one item per result, see below. Same limits as -j")
     # Allows to specify one or more XPath or CSS3 selector expressions
     parser.add_argument('-e', '--expression', default=[], action='append',
                         help="XPath query or CSS3 selector, detected automatically. Repeatable")
@@ -207,6 +212,8 @@ notes:
     args = parser.parse_args()
 
     # JSON flag is mutually exclusive with -t, -x, -a
+    if args.json_array:
+        args.json = True
     if args.json and args.text:
         print("Error: --json and --text are mutually exclusive.", file=sys.stderr)
         sys.exit(1)
@@ -320,6 +327,8 @@ notes:
 
     results = []
     string_results = []
+    # --json-array items: str for strings, bytes for element markup
+    array_items = []
     # For each expression, perform the search in the parsed HTML
     for e in expression:
         try:
@@ -336,6 +345,13 @@ notes:
 
         # Extract the text or content of the found elements
         for el in els:
+            if args.json_array:
+                if isinstance(el, str):
+                    if el.strip():
+                        array_items.append(el.strip())
+                elif isinstance(el.tag, str):  # not a comment or processing instruction
+                    array_items.append(etree.tostring(el, with_tail=False))
+                continue
             if isinstance(el, str):
                 # If the element is a string, use the text directly
                 text = el
@@ -372,16 +388,18 @@ notes:
     # Output handling
     if args.json:
         values = [s for s in string_results if s]
-        if values and len(string_results) == len(results):
-            # Only strings (@attr, text()): XML conversion would merge them into one
-            parsed = {"html": {"body": values[0] if len(values) == 1 else values}}
-        else:
-            try:
+        try:
+            if args.json_array:
+                parsed = [xmltodict.parse(i) if isinstance(i, bytes) else i for i in array_items]
+            elif values and len(string_results) == len(results):
+                # Only strings (@attr, text()): XML conversion would merge them into one
+                parsed = {"html": {"body": values[0] if len(values) == 1 else values}}
+            else:
                 parsed = xmltodict.parse(wrap_in_body(results))
-            except ExpatError as e:
-                print(f"Error: cannot convert result to JSON, it is not valid XML ({e}). "
-                      "Attribute names like @click or :bind are not supported by -j.", file=sys.stderr)
-                sys.exit(1)
+        except ExpatError as e:
+            print(f"Error: cannot convert result to JSON, it is not valid XML ({e}). "
+                  "Attribute names like @click or :bind are not supported by -j.", file=sys.stderr)
+            sys.exit(1)
         sys.stdout.write(json.dumps(parsed, indent=2, ensure_ascii=False) + "\n")
     elif args.body and not args.text:
         sys.stdout.write(wrap_in_body(results))

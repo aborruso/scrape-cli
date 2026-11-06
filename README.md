@@ -268,6 +268,8 @@ Output:
 
 `-j` automatically wraps the result in `<html>/<body>` before conversion, so you don't need to pass `-b`. For elements, the output is the same you would get from `scrape -be ... | xq .` (the underlying converter is `xmltodict`, the same library used by `xq`). Expressions that return only strings, such as `//a/@href` or `//p/text()`, give the string in `body` when there is one result and an array when there are more.
 
+Use `--json-array` when a script needs one shape for any number of results. The output is a flat list with no `html`/`body` envelope, one item per result, in the order of the expressions. Strings stay strings and elements become objects with the tag as key, so `scrape --json-array -e "//a/@href" -e "b"` gives `["x", "y", {"b": "tre"}]`, and no results give `[]`. It implies `-j` and has the same limits.
+
 `-j` is mutually exclusive with `-t`, `-x` (`--check-existence`) and `-a` (`--argument`).
 
 `-j` exits with an error when a matched element has an attribute name that is not valid XML, such as `@click` or `:bind`.

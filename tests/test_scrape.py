@@ -278,7 +278,7 @@ def test_help_documents_the_contract_for_agents():
     result = run_scrape("--help")
 
     assert result.returncode == 0
-    for section in ("output:", "exit codes:", "notes:", "examples:"):
+    for section in ("output:", "exit codes:", "notes:", "examples:", "--json-array"):
         assert section in result.stdout
 
 
@@ -453,6 +453,10 @@ def test_url_input_downloads_and_extracts_text():
 
 
 TAIL_HTML = '<p>Prima <a href="/x">Link</a> dopo.</p>'
+ARRAY_HTML = (
+    '<html><body><!-- c --><p class="a">uno</p><p class="a">due</p>'
+    '<a href="x">l</a><a href="y">m</a><b>tre</b></body></html>'
+)
 
 
 def test_text_after_element_stays_out_of_html_output():
@@ -468,3 +472,65 @@ def test_text_after_element_stays_out_of_body_output():
 def test_text_after_element_stays_out_of_json_output():
     result = run_scrape("-je", "//a", input_data=TAIL_HTML)
     assert json.loads(result.stdout) == {"html": {"body": {"a": {"@href": "/x", "#text": "Link"}}}}
+
+
+def json_array(*expressions, input_data=ARRAY_HTML):
+    args = ["--json-array"]
+    for expression in expressions:
+        args += ["-e", expression]
+    result = run_scrape(*args, input_data=input_data)
+    assert result.returncode == 0, result.stderr
+    return json.loads(result.stdout)
+
+
+def test_json_array_no_results():
+    assert json_array("p.none") == []
+
+
+def test_json_array_one_result():
+    assert json_array("b") == [{"b": "tre"}]
+
+
+def test_json_array_several_results():
+    assert json_array("//a/@href") == ["x", "y"]
+    assert json_array("p") == [
+        {"p": {"@class": "a", "#text": "uno"}},
+        {"p": {"@class": "a", "#text": "due"}},
+    ]
+
+
+def test_json_array_keeps_the_order_of_the_expressions():
+    assert json_array("//a/@href", "b") == ["x", "y", {"b": "tre"}]
+    assert json_array("b", "//a/@href") == [{"b": "tre"}, "x", "y"]
+
+
+def test_json_array_element_item():
+    assert json_array("a")[0] == {"a": {"@href": "x", "#text": "l"}}
+
+
+def test_json_array_leaves_out_text_after_element():
+    assert json_array("b", input_data="<p>a <b>x</b> coda</p>") == [{"b": "x"}]
+
+
+def test_json_array_xpath_functions():
+    assert json_array("count(//p)") == ["2"]
+    assert json_array("string(//none)") == []
+
+
+def test_json_array_skips_comments():
+    assert json_array("//comment()") == []
+
+
+def test_json_array_rejects_conflicting_flags():
+    for flags in (["-t"], ["-x"], ["-a", "href"]):
+        result = run_scrape("--json-array", *flags, "-e", "a", input_data=ARRAY_HTML)
+        assert result.returncode == 1
+        assert "Error:" in result.stderr
+
+
+def test_json_array_reports_clean_error_on_non_xml_attribute_name():
+    result = run_scrape("--json-array", "-e", "a", input_data='<a @click="x">l</a>')
+    assert result.returncode == 1
+    assert result.stdout == ""
+    assert "Error:" in result.stderr
+    assert "Traceback" not in result.stderr
